@@ -67,7 +67,7 @@ public class CommandTextBuilder {
     }
 
     private Text getDescription() {
-        MutableText command = Text.literal(hoverShowDisplay ? commandDisplay : commandRun)
+        MutableText command = new LiteralText(hoverShowDisplay ? commandDisplay : commandRun)
                 .styled(descriptionStyle -> descriptionStyle.withColor(TextColor.parse(CONFIG.colors.command)));
         if (description == null) {
             return TextUtils.translation(
