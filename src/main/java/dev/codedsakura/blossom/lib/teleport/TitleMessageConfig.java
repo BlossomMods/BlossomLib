@@ -1,9 +1,9 @@
 package dev.codedsakura.blossom.lib.teleport;
 
 import dev.codedsakura.blossom.lib.text.TextUtils;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 
 public class TitleMessageConfig {
@@ -49,7 +49,7 @@ public class TitleMessageConfig {
         public MutableText getText(String key, int counter) {
             return TextUtils.translation(
                     key,
-                    Text.literal(Integer.toString(counter))
+                    new LiteralText(Integer.toString(counter))
                             .styled(style -> style.withColor(TextColor.parse(counterColor)))
             ).styled(this::getStyle);
         }

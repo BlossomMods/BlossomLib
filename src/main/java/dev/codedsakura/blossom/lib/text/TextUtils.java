@@ -1,13 +1,9 @@
-package dev.codedsakura.blossom.lib;
+package dev.codedsakura.blossom.lib.text;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 
 import java.util.Arrays;
 
