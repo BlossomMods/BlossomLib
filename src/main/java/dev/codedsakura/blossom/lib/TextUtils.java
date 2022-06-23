@@ -38,6 +38,8 @@ public class TextUtils {
             return player((PlayerEntity) var);
         } else if (var instanceof CommandTextBuilder) {
             return ((CommandTextBuilder) var).asColoredText().copy();
+        } else if (var instanceof Text) {
+            return ((Text) var).copy();
         }
         return variable(var.toString());
     }
