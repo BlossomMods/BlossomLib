@@ -4,8 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.RotationArgumentType;
@@ -61,7 +62,7 @@ public class BlossomLib implements ModInitializer {
     public void onInitialize() {
         ServerTickEvents.END_SERVER_TICK.register(_server -> TeleportUtils.tick());
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(literal("blossomlib")
                     .requires(Permissions.require("blossom.lib.base-command", 2))
                     .then(literal("reload-configs")
@@ -148,16 +149,11 @@ public class BlossomLib implements ModInitializer {
                                     .then(argument("standStill", IntegerArgumentType.integer(0))
                                             .executes(ctx -> {
                                                 int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
-                                                ServerPlayerEntity player = ctx.getSource().getPlayer();
-                                                if (player == null) {
-                                                    return 1;
-                                                }
                                                 TextUtils.send(ctx, "blossom.debug.countdown.start", standStill);
-
                                                 TeleportUtils.genericCountdown(
                                                         null,
                                                         standStill,
-                                                        player,
+                                                        ctx.getSource().getPlayer(),
                                                         () -> {
                                                             LOGGER.info("debug countdown done");
                                                             TextUtils.send(ctx, "blossom.debug.countdown.end");
@@ -193,17 +189,13 @@ public class BlossomLib implements ModInitializer {
                                                                                 .toAbsoluteRotation(ctx.getSource());
                                                                         int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
                                                                         int cooldown = IntegerArgumentType.getInteger(ctx, "cooldown");
-                                                                        ServerPlayerEntity player = ctx.getSource().getPlayer();
-                                                                        if (player == null) {
-                                                                            return 1;
-                                                                        }
                                                                         TextUtils.send(ctx, "blossom.debug.teleport.cooldown", standStill, cooldown);
                                                                         return TeleportUtils.teleport(
                                                                                 null,
                                                                                 standStill,
                                                                                 cooldown,
                                                                                 BlossomLib.class,
-                                                                                player,
+                                                                                ctx.getSource().getPlayer(),
                                                                                 () -> new TeleportUtils.TeleportDestination(
                                                                                         ctx.getSource().getWorld(),
                                                                                         Vec3ArgumentType.getVec3(ctx, "pos"),
@@ -216,20 +208,14 @@ public class BlossomLib implements ModInitializer {
                     .requires(
                             Permissions.require("blossom.tpcancel", true)
                                     .and(source -> {
-                                        ServerPlayerEntity player = source.getPlayer();
-                                        if (player != null) {
-                                            return TeleportUtils.hasCountdowns(player.getUuid());
-                                        } else {
+                                        try {
+                                            return TeleportUtils.hasCountdowns(source.getPlayer().getUuid());
+                                        } catch (CommandSyntaxException e) {
                                             return false;
                                         }
                                     }))
                     .executes(ctx -> {
-                        ServerPlayerEntity player = ctx.getSource().getPlayer();
-                        if (player == null) {
-                            return 1;
-                        }
-
-                        TeleportUtils.cancelCountdowns(player.getUuid());
+                        TeleportUtils.cancelCountdowns(ctx.getSource().getPlayer().getUuid());
                         TextUtils.send(ctx, "blossom.tpcancel");
                         return 1;
                     }));

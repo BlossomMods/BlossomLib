@@ -1,9 +1,6 @@
 package dev.codedsakura.blossom.lib;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.*;
 
 public class TeleportConfig {
     public TeleportConfig(boolean defaults) {
@@ -63,7 +60,7 @@ public class TeleportConfig {
             }
 
             MutableText getText(String key) {
-                return TextUtils.translation(key).styled(this::getStyle);
+                return new TranslatableText(key).styled(this::getStyle);
             }
         }
 
@@ -76,9 +73,9 @@ public class TeleportConfig {
             }
 
             MutableText getText(String key, int counter) {
-                return TextUtils.translation(
+                return new TranslatableText(
                         key,
-                        Text.literal(Integer.toString(counter))
+                        new LiteralText(Integer.toString(counter))
                                 .styled(style -> style.withColor(TextColor.parse(counterColor)))
                 ).styled(this::getStyle);
             }

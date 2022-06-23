@@ -3,9 +3,7 @@ package dev.codedsakura.blossom.lib;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.*;
 
 import java.util.Arrays;
 
@@ -13,7 +11,7 @@ import static dev.codedsakura.blossom.lib.BlossomLib.CONFIG;
 
 public class TextUtils {
     public static MutableText variable(String str) {
-        return Text.literal(str)
+        return new LiteralText(str)
                 .styled(style -> style.withColor(TextColor.parse(CONFIG.colors.variable)));
     }
 
@@ -37,16 +35,16 @@ public class TextUtils {
         if (var instanceof PlayerEntity) {
             return player((PlayerEntity) var);
         } else if (var instanceof CommandTextBuilder) {
-            return ((CommandTextBuilder) var).asColoredText().copy();
+            return ((CommandTextBuilder) var).asColoredText().shallowCopy();
         } else if (var instanceof Text) {
-            return ((Text) var).copy();
+            return ((Text) var).shallowCopy();
         }
         return variable(var.toString());
     }
 
 
     public static MutableText player(PlayerEntity player) {
-        return player.getDisplayName().copy()
+        return player.getDisplayName().shallowCopy()
                 .styled(style -> {
                     if (style.getColor() == null) {
                         return style.withColor(TextColor.parse(CONFIG.colors.player));
@@ -59,7 +57,7 @@ public class TextUtils {
     public enum Type {ERROR, WARN, INFO, SUCCESS}
 
     public static MutableText fTranslation(String key, Type t, Object... args) {
-        return Text.translatable(
+        return new TranslatableText(
                 key,
                 Arrays.stream(args).map(TextUtils::variable).toArray()
         ).styled(style -> switch (t) {
