@@ -1,3 +1,7 @@
+# 1.2.2
+
+* Fix accidental Text conversion to String
+
 # 1.2.1
 
 * Improve CI
