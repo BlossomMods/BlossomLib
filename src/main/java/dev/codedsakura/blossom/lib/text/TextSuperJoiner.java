@@ -13,15 +13,15 @@ public class TextSuperJoiner {
     private MutableText result;
 
     private TextSuperJoiner(Text prepend, Text append, Text join) {
-        this.prepend = prepend.copy();
-        this.append = append.copy();
-        this.join = join.copy();
+        this.prepend = prepend.shallowCopy();
+        this.append = append.shallowCopy();
+        this.join = join.shallowCopy();
     }
 
     private TextSuperJoiner(Text prepend, Text append, Text join, MutableText result) {
-        this.prepend = prepend.copy();
-        this.append = append.copy();
-        this.join = join.copy();
+        this.prepend = prepend.shallowCopy();
+        this.append = append.shallowCopy();
+        this.join = join.shallowCopy();
         this.result = result;
     }
 
@@ -63,7 +63,7 @@ public class TextSuperJoiner {
 
     public static Collector<Text, ?, MutableText> joiner(Text join) {
         return Collector.of(
-                () -> new TextSuperJoiner(Text.empty(), Text.empty(), join),
+                () -> new TextSuperJoiner(Text.of(""), Text.of(""), join),
                 TextSuperJoiner::accumulator,
                 TextSuperJoiner::combiner,
                 TextSuperJoiner::finisher
