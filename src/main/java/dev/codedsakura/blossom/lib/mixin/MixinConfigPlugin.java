@@ -1,6 +1,6 @@
 package dev.codedsakura.blossom.lib.mixin;
 
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -13,7 +13,7 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        BlossomLib.LOGGER.info("BlossomLib mixins loading...");
+        BlossomGlobals.LOGGER.info("BlossomLib mixins loading...");
     }
 
     @Override
@@ -27,7 +27,7 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
 
         if (mixin.length == 1) {
             if (mixin[0].equals("MC124177Fix")) {
-                return BlossomLib.CONFIG.enableMC124177Fix;
+                return BlossomGlobals.CONFIG.enableMC124177Fix;
             }
         }
 

@@ -9,7 +9,7 @@ import net.minecraft.text.TextColor;
 
 import java.util.Arrays;
 
-import static dev.codedsakura.blossom.lib.BlossomLib.CONFIG;
+import static dev.codedsakura.blossom.lib.BlossomGlobals.CONFIG;
 
 public class TextUtils {
     public static MutableText variable(String str) {

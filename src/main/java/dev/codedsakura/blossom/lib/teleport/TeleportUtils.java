@@ -1,6 +1,6 @@
 package dev.codedsakura.blossom.lib.teleport;
 
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.HashablePair;
 import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static dev.codedsakura.blossom.lib.BlossomLib.CONFIG;
-import static dev.codedsakura.blossom.lib.BlossomLib.LOGGER;
+import static dev.codedsakura.blossom.lib.BlossomGlobals.CONFIG;
+import static dev.codedsakura.blossom.lib.BlossomGlobals.LOGGER;
 
 public class TeleportUtils {
     private static final ArrayList<CounterRunnable> TASKS = new ArrayList<>();
@@ -43,7 +43,7 @@ public class TeleportUtils {
         assert server != null;
         final Vec3d[] lastPos = {who.getPos()};
 
-        final TeleportConfig config = customConfig == null ? BlossomLib.CONFIG.baseTeleportation : customConfig.cloneMerge();
+        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
 
         CommandBossBar commandBossBar = null;
         int standTicks = (int) (standStillTime * 20);
@@ -253,7 +253,7 @@ public class TeleportUtils {
 
 
         genericCountdown(customConfig, standStillTime, who, () -> {
-            final TeleportConfig config = customConfig == null ? BlossomLib.CONFIG.baseTeleportation : customConfig.cloneMerge();
+            final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
             if (config.allowBack) {
                 LAST_TELEPORT.put(who.getUuid(), new TeleportDestination(who));
             }

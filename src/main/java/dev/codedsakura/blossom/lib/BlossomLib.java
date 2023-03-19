@@ -11,7 +11,6 @@ import dev.codedsakura.blossom.lib.permissions.Permissions;
 import dev.codedsakura.blossom.lib.teleport.TeleportUtils;
 import dev.codedsakura.blossom.lib.text.DimName;
 import dev.codedsakura.blossom.lib.text.TextUtils;
-import dev.codedsakura.blossom.lib.utils.CustomLogger;
 import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -23,7 +22,6 @@ import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
-import org.apache.logging.log4j.core.Logger;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -35,15 +33,12 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 
 public class BlossomLib implements ModInitializer {
-    public static BlossomLibConfig CONFIG = ConfigManager.register(BlossomLibConfig.class, "BlossomLib.json", newConf -> CONFIG = newConf);
-    public static final Logger LOGGER = CustomLogger.createLogger("BlossomLib");
-
     private static final ArrayList<LiteralArgumentBuilder<ServerCommandSource>> COMMANDS = new ArrayList<>();
     private static final ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> COMMAND_CONSUMERS = new ArrayList<>();
 
     @Override
     public void onInitialize() {
-        LOGGER.info("BlossomLib is starting...");
+        BlossomGlobals.LOGGER.info("BlossomLib is starting...");
 
         ServerTickEvents.END_SERVER_TICK.register(_server -> TeleportUtils.tick());
 
@@ -145,7 +140,7 @@ public class BlossomLib implements ModInitializer {
                                                         standStill,
                                                         player,
                                                         () -> {
-                                                            LOGGER.info("debug countdown done");
+                                                            BlossomGlobals.LOGGER.info("debug countdown done");
                                                             TextUtils.send(ctx, "blossom.debug.countdown.end");
                                                         }
                                                 );

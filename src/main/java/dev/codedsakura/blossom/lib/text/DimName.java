@@ -1,6 +1,6 @@
 package dev.codedsakura.blossom.lib.text;
 
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +14,10 @@ public class DimName {
     }
 
     public static String get(Identifier dimensionIdentifier) {
-        if (BlossomLib.CONFIG.dimNameOverrides != null) {
+        if (BlossomGlobals.CONFIG.dimNameOverrides != null) {
             String key = dimensionIdentifier.toString();
-            if (BlossomLib.CONFIG.dimNameOverrides.containsKey(key)) {
-                return BlossomLib.CONFIG.dimNameOverrides.get(key);
+            if (BlossomGlobals.CONFIG.dimNameOverrides.containsKey(key)) {
+                return BlossomGlobals.CONFIG.dimNameOverrides.get(key);
             }
         }
 

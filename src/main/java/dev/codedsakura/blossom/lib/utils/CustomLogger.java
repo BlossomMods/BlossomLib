@@ -1,6 +1,6 @@
 package dev.codedsakura.blossom.lib.utils;
 
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
@@ -19,7 +19,7 @@ public class CustomLogger {
     private static void initialize() {
         Configurator.reconfigure();
 
-        if (BlossomLib.CONFIG.logging.disableCustomLogger) {
+        if (BlossomGlobals.CONFIG.logging.disableCustomLogger) {
             CONTEXT = LoggerContext.getContext(true);
             return;
         }
@@ -29,11 +29,11 @@ public class CustomLogger {
 
         builder.add(
                 builder.newAppender("fileLog", "File")
-                        .addAttribute("fileName", BlossomLib.CONFIG.logging.fileLogPath)
-                        .addAttribute("append", BlossomLib.CONFIG.logging.fileLogAppend)
+                        .addAttribute("fileName", BlossomGlobals.CONFIG.logging.fileLogPath)
+                        .addAttribute("append", BlossomGlobals.CONFIG.logging.fileLogAppend)
                         .add(builder
                                 .newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.DENY)
-                                .addAttribute("level", BlossomLib.CONFIG.logging.fileLogLevel))
+                                .addAttribute("level", BlossomGlobals.CONFIG.logging.fileLogLevel))
                         .add(builder
                                 .newLayout("PatternLayout")
                                 .addAttribute("pattern", "[%d{yyyy-MM-dd HH:mm:ss}] [%t/%5level] (%logger{1}): %msg%n%throwable"))
@@ -49,7 +49,7 @@ public class CustomLogger {
 
         Configuration configuration = CONTEXT.getConfiguration();
         configuration.addAppender(sysOut);
-        configuration.getRootLogger().addAppender(sysOut, Level.getLevel(BlossomLib.CONFIG.logging.consoleLogLevel), null);
+        configuration.getRootLogger().addAppender(sysOut, Level.getLevel(BlossomGlobals.CONFIG.logging.consoleLogLevel), null);
     }
 
     /**

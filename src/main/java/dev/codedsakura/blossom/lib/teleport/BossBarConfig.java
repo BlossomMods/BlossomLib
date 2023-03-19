@@ -6,7 +6,7 @@ public class BossBarConfig {
     public String textColor;
 
     public BossBarConfig(boolean defaults) {
-        color = defaults ? net.minecraft.entity.boss.BossBar.Color.BLUE.getName() : null;
+        color = defaults ? "blue" : null;
         textColor = defaults ? "white" : null;
     }
 

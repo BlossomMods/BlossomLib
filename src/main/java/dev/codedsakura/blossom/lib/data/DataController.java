@@ -2,7 +2,7 @@ package dev.codedsakura.blossom.lib.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
@@ -68,13 +68,13 @@ public abstract class DataController<T> {
     }
 
     public void write(MinecraftServer server) {
-        BlossomLib.LOGGER.trace("writing");
+        BlossomGlobals.LOGGER.trace("writing");
         try {
             OutputStreamWriter writer = getWriter(server);
             writeJson(writer);
             writer.close();
         } catch (Exception e) {
-            BlossomLib.LOGGER.throwing(e);
+            BlossomGlobals.LOGGER.throwing(e);
         }
     }
 
@@ -83,11 +83,11 @@ public abstract class DataController<T> {
     }
 
     public T read(MinecraftServer server) {
-        BlossomLib.LOGGER.trace("reading");
+        BlossomGlobals.LOGGER.trace("reading");
         try {
             return readJson(getReader(server));
         } catch (Exception e) {
-            BlossomLib.LOGGER.info(e.getMessage());
+            BlossomGlobals.LOGGER.info(e.getMessage());
             return null;
         }
     }

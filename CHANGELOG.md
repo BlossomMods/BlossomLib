@@ -1,3 +1,7 @@
+# 2.5.1
+
+* Prevent unnecessary class loading in MixinConfigPlugin ([#5](https://github.com/BlossomMods/BlossomLib/issues/5))
+
 # 2.5.0
 
 * Allow checking permissions of Entities (!4)

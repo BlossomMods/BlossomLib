@@ -1,6 +1,6 @@
 package dev.codedsakura.blossom.lib.teleport;
 
-import dev.codedsakura.blossom.lib.BlossomLib;
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
 
 public class TeleportConfig {
@@ -38,7 +38,7 @@ public class TeleportConfig {
     }
 
     public TeleportConfig cloneMerge() {
-        TeleportConfig defaultConf = BlossomLib.CONFIG.baseTeleportation;
+        TeleportConfig defaultConf = BlossomGlobals.CONFIG.baseTeleportation;
 
         TeleportConfig newOne = new TeleportConfig(false);
 
