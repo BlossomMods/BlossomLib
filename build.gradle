@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -28,7 +28,12 @@ processResources {
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand(
+                "version": project.version,
+                "supported_versions": project.supported_mc_versions,
+                "mod_id": project.mod_id,
+                "mod_name": project.mod_name,
+        )
     }
 }
 
@@ -38,21 +43,21 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-    archivesBaseName = project.archives_base_name
+    archivesBaseName = project.mod_id
 
     withSourcesJar()
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${project.mod_id}" }
     }
 }
 
 publishing {
     publications {
         gpr(MavenPublication) {
-            artifactId = project.archives_base_name
+            artifactId = project.mod_id
             from components.java
         }
     }
@@ -60,7 +65,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/BlossomMods/${project.mod_slug}")
+            url = uri("https://maven.pkg.github.com/BlossomMods/${project.mod_name}")
             credentials {
                 username = System.getenv("USERNAME")
                 password = System.getenv("TOKEN")
@@ -70,11 +75,11 @@ publishing {
 }
 
 modrinth {
-    projectId = "${project.mod_slug}"
+    projectId = "${project.mod_name}"
     versionType = "release"
     uploadFile = remapJar
     changelog = System.getenv("CHANGELOG_PATH") ? rootProject.file(System.getenv("CHANGELOG_PATH")).text : ""
-    gameVersions = [((String) project.minecraft_version)]
+    gameVersions = ((String) project.minecraft_version).split("\\|").toList()
     loaders = ["fabric", "quilt"]
     syncBodyFrom = rootProject.file("README.md").text
 }
