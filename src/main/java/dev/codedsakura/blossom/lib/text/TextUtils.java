@@ -75,27 +75,27 @@ public class TextUtils {
     }
 
     public static void send(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> translation(key, args), false);
+        ctx.getSource().sendFeedback(translation(key, args), false);
     }
 
     public static void sendOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> translation(key, args), true);
+        ctx.getSource().sendFeedback(translation(key, args), true);
     }
 
     public static void sendWarn(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.WARN, args), false);
+        ctx.getSource().sendFeedback(fTranslation(key, Type.WARN, args), false);
     }
 
     public static void sendWarnOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.WARN, args), true);
+        ctx.getSource().sendFeedback(fTranslation(key, Type.WARN, args), true);
     }
 
     public static void sendSuccess(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.SUCCESS, args), false);
+        ctx.getSource().sendFeedback(fTranslation(key, Type.SUCCESS, args), false);
     }
 
     public static void sendSuccessOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.SUCCESS, args), true);
+        ctx.getSource().sendFeedback(fTranslation(key, Type.SUCCESS, args), true);
     }
 
     public static void sendErr(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
