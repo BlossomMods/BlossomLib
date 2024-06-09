@@ -4,7 +4,7 @@ plugins {
     id "com.modrinth.minotaur" version "2.+"
 }
 
-var mc_version = project.supported_versions.split(";")[0]
+var mc_version = project.supported_versions.split(";").last()
 version = "${project.mod_version}+${mc_version}"
 group = project.maven_group
 
