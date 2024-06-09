@@ -123,7 +123,7 @@ public class TeleportUtils {
                 } else {
                     LOGGER.debug("genericCountdown for {} has been reset after {} ticks", player, standTicks - counter);
                     lastFovMultiplier[0] = 1f;
-                    PlayerSetFoV.setPlayerFoV(who, 1);
+                    PlayerSetFoV.resetPlayerFoV(who);
                     lastPos[0] = pos;
                     return false;
                 }
@@ -189,9 +189,7 @@ public class TeleportUtils {
                     server.getBossBarManager().remove(finalCommandBossBar);
                 }
 
-                if (counter != 0) {
-                    PlayerSetFoV.setPlayerFoV(who, 1);
-                }
+                PlayerSetFoV.resetPlayerFoV(who);
             }
         });
     }
