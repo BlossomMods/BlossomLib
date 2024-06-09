@@ -1,11 +1,13 @@
 package dev.codedsakura.blossom.lib.teleport;
 
+import dev.codedsakura.blossom.lib.permissions.Permissions;
 import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TeleportConfig {
@@ -45,6 +47,8 @@ public class TeleportConfig {
     public Boolean useDimBlacklistAsWhitelist;
     public DimBlacklistBehavior dimBlacklistBehavior;
 
+    public Map<String, TeleportConfig> permissionOverrides = Map.of();
+
 
     public enum ParticleAnimation {
         OFF
@@ -62,7 +66,7 @@ public class TeleportConfig {
     }
 
 
-    public TeleportConfig cloneMerge() {
+    private TeleportConfig cloneMergeDefault() {
         return new Builder()
                 .setBossBarOrDefault(this.bossBar)
                 .setTitleMessageOrDefault(this.titleMessage)
@@ -86,6 +90,26 @@ public class TeleportConfig {
                 .build();
     }
 
+    public TeleportConfig getPlayerSpecific(ServerPlayerEntity player) {
+        if (DEFAULT.permissionOverrides.isEmpty()) {
+            return this.cloneMergeDefault();
+        }
+
+        Optional<String> firstPerm = DEFAULT.permissionOverrides
+                .keySet()
+                .stream()
+                .filter(perm -> Permissions.check(player, perm, false))
+                .findFirst();
+
+        if (firstPerm.isEmpty()) {
+            return this.cloneMergeDefault();
+        }
+
+        return DEFAULT.permissionOverrides
+                .get(firstPerm.get())
+                .cloneMergeDefault();
+    }
+
 
     private enum DimTeleportCheck {
         ALLOWED(""),
@@ -105,13 +129,13 @@ public class TeleportConfig {
     }
 
     public boolean teleportAllowed(ServerPlayerEntity player, String dest) {
-        var config = this.cloneMerge();
+        var config = this.getPlayerSpecific(player);
         var source = player.getWorld().getRegistryKey().getValue().toString();
         return dimTeleportCheck(config, source, dest) == DimTeleportCheck.ALLOWED;
     }
 
     public boolean teleportCheckAndInform(ServerPlayerEntity player, String dest) {
-        var config = this.cloneMerge();
+        var config = this.getPlayerSpecific(player);
         var source = player.getWorld().getRegistryKey().getValue().toString();
         var check = dimTeleportCheck(config, source, dest);
 

@@ -38,7 +38,7 @@ public class TeleportUtils {
     }
 
     public static void genericCountdown(@Nullable TeleportConfig customConfig, ServerPlayerEntity who, Runnable onDone) {
-        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
+        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.getPlayerSpecific(who);
 
         LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUuid(), config.standStill);
         MinecraftServer server = who.getServer();
@@ -253,7 +253,7 @@ public class TeleportUtils {
             }
         }
 
-        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
+        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.getPlayerSpecific(who);
 
         var destinationWorld = getWhere.get().world.getRegistryKey().getValue().toString();
         if (!config.teleportCheckAndInform(who, destinationWorld)) {
