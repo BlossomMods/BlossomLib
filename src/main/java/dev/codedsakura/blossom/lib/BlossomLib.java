@@ -1,12 +1,12 @@
 package dev.codedsakura.blossom.lib;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.codedsakura.blossom.lib.config.ConfigManager;
+import dev.codedsakura.blossom.lib.mod.BlossomMod;
+import dev.codedsakura.blossom.lib.mod.ModController;
 import dev.codedsakura.blossom.lib.permissions.Permissions;
 import dev.codedsakura.blossom.lib.teleport.TeleportUtils;
 import dev.codedsakura.blossom.lib.text.DimName;
@@ -19,22 +19,19 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 
 public class BlossomLib implements ModInitializer {
-    private static final ArrayList<LiteralArgumentBuilder<ServerCommandSource>> COMMANDS = new ArrayList<>();
-    private static final ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> COMMAND_CONSUMERS = new ArrayList<>();
+    private static final ArrayList<BlossomMod<?>> MODS = new ArrayList<>();
 
     @Override
     public void onInitialize() {
@@ -221,19 +218,12 @@ public class BlossomLib implements ModInitializer {
                         return 1;
                     }));
 
-            COMMANDS.forEach(dispatcher::register);
-
-            COMMAND_CONSUMERS.forEach(consumer -> consumer.accept(dispatcher));
         });
 
         BlossomGlobals.LOGGER.info("BlossomLib has starting");
     }
 
-    public static void addCommand(LiteralArgumentBuilder<ServerCommandSource> command) {
-        COMMANDS.add(command);
-    }
-
-    public static void registerCommand(Consumer<CommandDispatcher<ServerCommandSource>> callback) {
-        COMMAND_CONSUMERS.add(callback);
+    public static <T> void registerSubMod(BlossomMod<T> mod) {
+        ModController.register(mod);
     }
 }
