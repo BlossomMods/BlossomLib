@@ -2,7 +2,6 @@ package dev.codedsakura.blossom.lib;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.codedsakura.blossom.lib.config.ConfigManager;
 import dev.codedsakura.blossom.lib.mod.BlossomMod;
@@ -15,14 +14,10 @@ import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.RotationArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
+import net.minecraft.command.argument.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,8 +26,6 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 
 public class BlossomLib implements ModInitializer {
-    private static final ArrayList<BlossomMod<?>> MODS = new ArrayList<>();
-
     @Override
     public void onInitialize() {
         ServerTickEvents.END_SERVER_TICK.register(_server -> TeleportUtils.tick());
@@ -121,9 +114,7 @@ public class BlossomLib implements ModInitializer {
                     .then(literal("debug")
                             .requires(Permissions.require("blossom.lib.base-command.debug", 4))
                             .then(literal("countdown")
-                                    .then(argument("standStill", IntegerArgumentType.integer(0))
                                             .executes(ctx -> {
-                                                int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
                                                 ServerPlayerEntity player = ctx.getSource().getPlayer();
                                                 if (player == null) {
                                                     return 1;
@@ -132,7 +123,6 @@ public class BlossomLib implements ModInitializer {
 
                                                 TeleportUtils.genericCountdown(
                                                         null,
-                                                        standStill,
                                                         player,
                                                         () -> {
                                                             BlossomGlobals.LOGGER.info("debug countdown done");
@@ -140,53 +130,40 @@ public class BlossomLib implements ModInitializer {
                                                         }
                                                 );
                                                 return 1;
-                                            })))
+                                            }))
                             .then(literal("teleport")
-                                    .then(argument("standStill", IntegerArgumentType.integer(0))
-                                            .then(argument("pos", Vec3ArgumentType.vec3(true))
-                                                    .then(argument("rot", RotationArgumentType.rotation())
+                                    .then(argument("pos", Vec3ArgumentType.vec3(true))
+                                            .then(argument("rot", RotationArgumentType.rotation())
+                                                    .executes(ctx -> {
+                                                        Vec2f rot = RotationArgumentType.getRotation(ctx, "rot")
+                                                                .toAbsoluteRotation(ctx.getSource());
+                                                        TextUtils.send(ctx, "blossom.lib.debug.teleport");
+                                                        return TeleportUtils.teleport(
+                                                                null,
+                                                                ctx.getSource().getPlayer(),
+                                                                () -> new TeleportUtils.TeleportDestination(
+                                                                        ctx.getSource().getWorld(),
+                                                                        Vec3ArgumentType.getVec3(ctx, "pos"),
+                                                                        rot.y, rot.x
+                                                                )
+                                                        ) ? 1 : 0;
+                                                    })
+                                                    .then(argument("dim", DimensionArgumentType.dimension())
                                                             .executes(ctx -> {
                                                                 Vec2f rot = RotationArgumentType.getRotation(ctx, "rot")
                                                                         .toAbsoluteRotation(ctx.getSource());
-                                                                int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
-                                                                TextUtils.send(ctx, "blossom.debug.teleport.no-cooldown", standStill);
+                                                                var world = DimensionArgumentType.getDimensionArgument(ctx, "dim");
+                                                                TextUtils.send(ctx, "blossom.lib.debug.teleport");
                                                                 return TeleportUtils.teleport(
                                                                         null,
-                                                                        standStill,
                                                                         ctx.getSource().getPlayer(),
                                                                         () -> new TeleportUtils.TeleportDestination(
-                                                                                ctx.getSource().getWorld(),
+                                                                                world,
                                                                                 Vec3ArgumentType.getVec3(ctx, "pos"),
                                                                                 rot.y, rot.x
                                                                         )
                                                                 ) ? 1 : 0;
-                                                            })))
-                                            .then(argument("cooldown", IntegerArgumentType.integer())
-                                                    .then(argument("pos", Vec3ArgumentType.vec3(true))
-                                                            .then(argument("rot", RotationArgumentType.rotation())
-                                                                    .executes(ctx -> {
-                                                                        Vec2f rot = RotationArgumentType.getRotation(ctx, "rot")
-                                                                                .toAbsoluteRotation(ctx.getSource());
-                                                                        int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
-                                                                        int cooldown = IntegerArgumentType.getInteger(ctx, "cooldown");
-                                                                        ServerPlayerEntity player = ctx.getSource().getPlayer();
-                                                                        if (player == null) {
-                                                                            return 1;
-                                                                        }
-                                                                        TextUtils.send(ctx, "blossom.debug.teleport.cooldown", standStill, cooldown);
-                                                                        return TeleportUtils.teleport(
-                                                                                null,
-                                                                                standStill,
-                                                                                cooldown,
-                                                                                BlossomLib.class,
-                                                                                player,
-                                                                                () -> new TeleportUtils.TeleportDestination(
-                                                                                        ctx.getSource().getWorld(),
-                                                                                        Vec3ArgumentType.getVec3(ctx, "pos"),
-                                                                                        rot.y, rot.x
-                                                                                )
-                                                                        ) ? 1 : 0;
-                                                                    }))))))
+                                                            })))))
                             .then(literal("fov")
                                     .then(argument("multiplier", FloatArgumentType.floatArg())
                                             .executes(ctx -> {
@@ -220,7 +197,7 @@ public class BlossomLib implements ModInitializer {
 
         });
 
-        BlossomGlobals.LOGGER.info("BlossomLib has starting");
+        BlossomGlobals.LOGGER.info("BlossomLib has started");
     }
 
     public static <T> void registerSubMod(BlossomMod<T> mod) {

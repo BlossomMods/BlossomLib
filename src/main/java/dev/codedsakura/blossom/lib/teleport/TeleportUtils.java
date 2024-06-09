@@ -253,9 +253,14 @@ public class TeleportUtils {
             }
         }
 
+        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
+
+        var destinationWorld = getWhere.get().world.getRegistryKey().getValue().toString();
+        if (!config.teleportCheckAndInform(who, destinationWorld)) {
+            return false;
+        }
 
         genericCountdown(customConfig, who, () -> {
-            final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
             if (config.allowBack) {
                 TeleportUtils.addLastTeleport(who.getUuid(), new TeleportDestination(who));
             }
