@@ -32,9 +32,9 @@ public class BlossomLib implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> {
             dispatcher.register(literal("blossomlib")
-                    .requires(Permissions.require("blossom.lib.base-command", 2))
+                    .requires(Permissions.require("blossom.lib.command.blossomlib.base", 2))
                     .then(literal("reload-configs")
-                            .requires(Permissions.require("blossom.lib.base-command.reload-configs", 3))
+                            .requires(Permissions.require("blossom.lib.command.blossomlib.reload-configs", 3))
                             .executes(ctx -> {
                                 ConfigManager.refreshAll();
                                 TextUtils.sendOps(ctx, "blossom.lib.configs-reload");
@@ -62,7 +62,7 @@ public class BlossomLib implements ModInitializer {
                                         return 1;
                                     })))
                     .then(literal("clear-countdowns")
-                            .requires(Permissions.require("blossom.lib.base-command.clear.countdowns", 2))
+                            .requires(Permissions.require("blossom.lib.command.blossomlib.clear-countdowns", 2))
                             .executes(ctx -> {
                                 TeleportUtils.clearAll();
                                 TextUtils.sendOps(ctx, "blossom.lib.clear-countdowns.all");
@@ -76,7 +76,7 @@ public class BlossomLib implements ModInitializer {
                                         return 1;
                                     })))
                     .then(literal("clear-cooldowns")
-                            .requires(Permissions.require("blossom.lib.base-command.clear.cooldowns", 2))
+                            .requires(Permissions.require("blossom.lib.command.blossomlib.clear-cooldowns", 2))
                             .executes(ctx -> {
                                 TeleportUtils.cancelAllCooldowns();
                                 TextUtils.sendOps(ctx, "blossom.lib.clear-cooldowns.all");
@@ -112,7 +112,7 @@ public class BlossomLib implements ModInitializer {
                                                 return 1;
                                             }))))
                     .then(literal("debug")
-                            .requires(Permissions.require("blossom.lib.base-command.debug", 4))
+                            .requires(Permissions.require("blossom.lib.command.blossomlib.debug", 4))
                             .then(literal("countdown")
                                             .executes(ctx -> {
                                                 ServerPlayerEntity player = ctx.getSource().getPlayer();
@@ -182,7 +182,7 @@ public class BlossomLib implements ModInitializer {
 
             dispatcher.register(literal("tpcancel")
                     .requires(
-                            Permissions.require("blossom.tpcancel", true))
+                            Permissions.require("blossom.lib.command.tpcancel", true))
                     .executes(ctx -> {
                         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
