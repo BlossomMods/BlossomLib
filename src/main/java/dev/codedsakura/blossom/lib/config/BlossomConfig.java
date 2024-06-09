@@ -6,6 +6,7 @@ import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
 import dev.codedsakura.blossom.lib.utils.gson.CubicBezierCurveSerializer;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.core.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -25,7 +26,8 @@ public class BlossomConfig {
     }
 
     public static <T> @NotNull T load(Class<T> clazz, String filename) {
-        Optional.ofNullable(BlossomGlobals.LOGGER)
+        Optional<Logger> optionalLogger = Optional.ofNullable(BlossomGlobals.LOGGER);
+        optionalLogger
                 .ifPresent(l -> l.trace("loading config {}", filename));
 
         var file = getFile(filename);
@@ -39,7 +41,10 @@ public class BlossomConfig {
             )) {
                 config = GSON.fromJson(reader, clazz);
             } catch (IOException e) {
-                e.printStackTrace();
+                optionalLogger.ifPresentOrElse(
+                        l -> l.error("Failed to load config {}", filename, e),
+                        e::printStackTrace
+                );
             }
         }
 
@@ -48,7 +53,10 @@ public class BlossomConfig {
                 config = clazz.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
-                e.printStackTrace();
+                optionalLogger.ifPresentOrElse(
+                        l -> l.error("Failed to load config class {}", filename, e),
+                        e::printStackTrace
+                );
                 System.exit(1);
             }
         }
@@ -58,13 +66,16 @@ public class BlossomConfig {
     }
 
     public static <T> void save(T config, String filename) {
-        Optional.ofNullable(BlossomGlobals.LOGGER)
-                .ifPresent(l -> l.trace("saving config {}", filename));
+        Optional<Logger> optionalLogger = Optional.ofNullable(BlossomGlobals.LOGGER);
+        optionalLogger.ifPresent(l -> l.trace("saving config {}", filename));
 
         File file = getFile(filename);
         if (!file.getParentFile().exists()) {
             if (!file.getParentFile().mkdir()) {
-                System.err.println("Failed to create a directory for " + file);
+                optionalLogger.ifPresentOrElse(
+                        l -> l.error("Failed to create a directory for {}", filename),
+                        () -> System.err.println("Failed to create a directory for " + file)
+                );
             }
         }
 
@@ -73,7 +84,10 @@ public class BlossomConfig {
         )) {
             GSON.toJson(config, writer);
         } catch (IOException e) {
-            e.printStackTrace();
+            optionalLogger.ifPresentOrElse(
+                    l -> l.error("Failed to save config {}", filename, e),
+                    e::printStackTrace
+            );
         }
     }
 }
