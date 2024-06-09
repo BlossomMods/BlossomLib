@@ -37,7 +37,7 @@ public class BlossomLib implements ModInitializer {
                             .requires(Permissions.require("blossom.lib.base-command.reload-configs", 3))
                             .executes(ctx -> {
                                 ConfigManager.refreshAll();
-                                TextUtils.sendOps(ctx, "blossom.configs-reload");
+                                TextUtils.sendOps(ctx, "blossom.lib.configs-reload");
                                 return 1;
                             })
                             .then(argument("module", StringArgumentType.string())
@@ -58,35 +58,35 @@ public class BlossomLib implements ModInitializer {
                                                 .filter(c -> c.getSimpleName().equals(module))
                                                 .findFirst().orElseThrow();
                                         ConfigManager.refresh(target);
-                                        TextUtils.sendOps(ctx, "blossom.config-reload", target);
+                                        TextUtils.sendOps(ctx, "blossom.lib.config-reload", target);
                                         return 1;
                                     })))
                     .then(literal("clear-countdowns")
                             .requires(Permissions.require("blossom.lib.base-command.clear.countdowns", 2))
                             .executes(ctx -> {
                                 TeleportUtils.clearAll();
-                                TextUtils.sendOps(ctx, "blossom.clear-countdowns.all");
+                                TextUtils.sendOps(ctx, "blossom.lib.clear-countdowns.all");
                                 return 1;
                             })
                             .then(argument("player", EntityArgumentType.player())
                                     .executes(ctx -> {
                                         ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
                                         TeleportUtils.cancelCountdowns(player.getUuid());
-                                        TextUtils.sendOps(ctx, "blossom.clear-countdowns.one", player);
+                                        TextUtils.sendOps(ctx, "blossom.lib.clear-countdowns.one", player);
                                         return 1;
                                     })))
                     .then(literal("clear-cooldowns")
                             .requires(Permissions.require("blossom.lib.base-command.clear.cooldowns", 2))
                             .executes(ctx -> {
                                 TeleportUtils.cancelAllCooldowns();
-                                TextUtils.sendOps(ctx, "blossom.clear-cooldowns.all");
+                                TextUtils.sendOps(ctx, "blossom.lib.clear-cooldowns.all");
                                 return 1;
                             })
                             .then(argument("player", EntityArgumentType.player())
                                     .executes(ctx -> {
                                         ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
                                         TeleportUtils.cancelCooldowns(player.getUuid());
-                                        TextUtils.sendOps(ctx, "blossom.clear-cooldowns.one", player);
+                                        TextUtils.sendOps(ctx, "blossom.lib.clear-cooldowns.one", player);
                                         return 1;
                                     })
                                     .then(argument("type", StringArgumentType.greedyString())
@@ -108,7 +108,7 @@ public class BlossomLib implements ModInitializer {
                                                         .filter(c -> c.getSimpleName().equals(type))
                                                         .findFirst().orElseThrow();
                                                 TeleportUtils.cancelCooldown(player, target);
-                                                TextUtils.sendOps(ctx, "blossom.clear-cooldowns.type", player, type);
+                                                TextUtils.sendOps(ctx, "blossom.lib.clear-cooldowns.type", player, type);
                                                 return 1;
                                             }))))
                     .then(literal("debug")
@@ -119,14 +119,14 @@ public class BlossomLib implements ModInitializer {
                                                 if (player == null) {
                                                     return 1;
                                                 }
-                                                TextUtils.send(ctx, "blossom.debug.countdown.start", standStill);
+                                                TextUtils.send(ctx, "blossom.lib.debug.countdown.start");
 
                                                 TeleportUtils.genericCountdown(
                                                         null,
                                                         player,
                                                         () -> {
                                                             BlossomGlobals.LOGGER.info("debug countdown done");
-                                                            TextUtils.send(ctx, "blossom.debug.countdown.end");
+                                                            TextUtils.send(ctx, "blossom.lib.debug.countdown.end");
                                                         }
                                                 );
                                                 return 1;
