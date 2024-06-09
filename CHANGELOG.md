@@ -1,3 +1,11 @@
+# 3.0.0
+
+* Move all translation to BlossomLib
+* Add even more code abstraction
+* Add option to prevent teleports to/from a dimension [BlossomLib#8](https://github.com/BlossomMods/BlossomLib/issues/8)
+* Implement cooldowns based on permission [BlossomLib#7](https://github.com/BlossomMods/BlossomLib/issues/7)
+* Fix speed stacking bug [BlossomHomes#17](https://github.com/BlossomMods/BlossomHomes/issues/17)
+
 # 2.5.7
 
 * Update to 1.20.6
