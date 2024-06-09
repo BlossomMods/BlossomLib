@@ -37,16 +37,16 @@ public class TeleportUtils {
         TASKS.removeIf(CounterRunnable::shouldRemove);
     }
 
-    public static void genericCountdown(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayerEntity who, Runnable onDone) {
-        LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUuid(), standStillTime);
+    public static void genericCountdown(@Nullable TeleportConfig customConfig, ServerPlayerEntity who, Runnable onDone) {
+        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
+
+        LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUuid(), config.standStill);
         MinecraftServer server = who.getServer();
         assert server != null;
         final Vec3d[] lastPos = {who.getPos()};
 
-        final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
-
         CommandBossBar commandBossBar = null;
-        int standTicks = (int) (standStillTime * 20);
+        int standTicks = config.standStill * 20;
         if (config.bossBar.enabled) {
             Identifier id = new Identifier(IDENTIFIER + "_" + who.getUuidAsString());
             commandBossBar = Optional.ofNullable(server.getBossBarManager().get(id))
@@ -234,11 +234,11 @@ public class TeleportUtils {
     }
 
 
-    public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayerEntity who, GetDestination getWhere) {
-        return teleport(customConfig, standStillTime, 0, TeleportUtils.class, who, getWhere);
+    public static boolean teleport(@Nullable TeleportConfig customConfig, ServerPlayerEntity who, GetDestination getWhere) {
+        return teleport(customConfig, TeleportUtils.class, who, getWhere);
     }
 
-    public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, long cooldownTime,
+    public static boolean teleport(@Nullable TeleportConfig customConfig,
                                    Class<?> cooldownClass, ServerPlayerEntity who, GetDestination getWhere) {
         if (hasCountdowns(who.getUuid())) {
             who.sendMessage(TextUtils.fTranslation("blossom.error.has-countdown", TextUtils.Type.ERROR), false);
@@ -254,14 +254,14 @@ public class TeleportUtils {
         }
 
 
-        genericCountdown(customConfig, standStillTime, who, () -> {
+        genericCountdown(customConfig, who, () -> {
             final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
             if (config.allowBack) {
                 TeleportUtils.addLastTeleport(who.getUuid(), new TeleportDestination(who));
             }
             TeleportDestination where = getWhere.get();
             who.teleport(where.world, where.x, where.y, where.z, where.yaw, where.pitch);
-            COOLDOWNS.put(pair, new Date().getTime() / 1000 + cooldownTime);
+            COOLDOWNS.put(pair, new Date().getTime() / 1000 + config.cooldown);
         });
         return true;
     }

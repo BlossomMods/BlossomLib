@@ -16,7 +16,7 @@ public class BlossomLibConfig {
         public boolean disableCustomLogger = false;
     }
 
-    public TeleportConfig baseTeleportation = new TeleportConfig(true);
+    public TeleportConfig baseTeleportation = TeleportConfig.DEFAULT;
 
     public Colors colors = new Colors();
 
