@@ -108,4 +108,12 @@ public class TextUtils {
     public static void sendErr(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
         ctx.getSource().sendError(fTranslation(key, Type.ERROR, args));
     }
+
+    public static void sendRaw(CommandContext<ServerCommandSource> ctx, Text message) {
+        ctx.getSource().sendFeedback(() -> message, false);
+    }
+
+    public static void sendRawOps(CommandContext<ServerCommandSource> ctx, Text message) {
+        ctx.getSource().sendFeedback(() -> message, true);
+    }
 }
