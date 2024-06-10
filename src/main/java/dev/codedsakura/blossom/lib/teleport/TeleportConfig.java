@@ -1,9 +1,6 @@
 package dev.codedsakura.blossom.lib.teleport;
 
-import dev.codedsakura.blossom.lib.permissions.Permissions;
-import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -66,7 +63,7 @@ public class TeleportConfig {
     }
 
 
-    private TeleportConfig cloneMergeDefault() {
+    TeleportConfig cloneMergeDefault() {
         return new Builder()
                 .setBossBarOrDefault(this.bossBar)
                 .setTitleMessageOrDefault(this.titleMessage)
@@ -88,139 +85,6 @@ public class TeleportConfig {
                 .setUseDimBlacklistAsWhitelistOrDefault(this.useDimBlacklistAsWhitelist)
                 .setDimBlacklistBehavior(this.dimBlacklistBehavior)
                 .build();
-    }
-
-    public TeleportConfig getPlayerSpecific(ServerPlayerEntity player) {
-        if (DEFAULT.permissionOverrides.isEmpty()) {
-            return this.cloneMergeDefault();
-        }
-
-        Optional<String> firstPerm = DEFAULT.permissionOverrides
-                .keySet()
-                .stream()
-                .filter(perm -> Permissions.check(player, perm, false))
-                .findFirst();
-
-        if (firstPerm.isEmpty()) {
-            return this.cloneMergeDefault();
-        }
-
-        return DEFAULT.permissionOverrides
-                .get(firstPerm.get())
-                .cloneMergeDefault();
-    }
-
-
-    private enum DimTeleportCheck {
-        ALLOWED(""),
-        SOURCE_IN_BLACKLIST("source-blacklist"),
-        DEST_IN_BLACKLIST("dest-blacklist"),
-        SOURCE_AND_DEST_IN_BLACKLIST("source-dest-blacklist"),
-        SOURCE_NOT_IN_WHITELIST("source-whitelist"),
-        DEST_NOT_IN_WHITELIST("dest-whitelist"),
-        SOURCE_AND_DEST_NOT_IN_WHITELIST("source-dest-whitelist"),
-        ;
-
-        public final String localeKey;
-
-        DimTeleportCheck(String localeKey) {
-            this.localeKey = localeKey;
-        }
-    }
-
-    public boolean teleportAllowed(ServerPlayerEntity player, String dest) {
-        var config = this.getPlayerSpecific(player);
-        var source = player.getWorld().getRegistryKey().getValue().toString();
-        return dimTeleportCheck(config, source, dest) == DimTeleportCheck.ALLOWED;
-    }
-
-    public boolean teleportCheckAndInform(ServerPlayerEntity player, String dest) {
-        var config = this.getPlayerSpecific(player);
-        var source = player.getWorld().getRegistryKey().getValue().toString();
-        var check = dimTeleportCheck(config, source, dest);
-
-        if (check == DimTeleportCheck.ALLOWED) {
-            return true;
-        }
-
-        player.sendMessage(TextUtils.fTranslation("blossom.error.teleport." + check.localeKey, TextUtils.Type.ERROR, source, dest), false);
-
-        return false;
-    }
-
-    private static DimTeleportCheck dimTeleportCheck(TeleportConfig config, String source, String dest) {
-        boolean sourceInList = config.dimensionBlacklist.contains(source);
-        boolean destInList = config.dimensionBlacklist.contains(dest);
-
-        if (config.useDimBlacklistAsWhitelist) {
-            switch (config.dimBlacklistBehavior) {
-                case SOURCE:
-                    if (!sourceInList) {
-                        return DimTeleportCheck.SOURCE_NOT_IN_WHITELIST;
-                    }
-                    break;
-
-                case DEST:
-                    if (!destInList) {
-                        return DimTeleportCheck.DEST_NOT_IN_WHITELIST;
-                    }
-                    break;
-
-                case SOURCE_AND_DEST:
-                    if (!sourceInList) {
-                        if (!destInList) {
-                            return DimTeleportCheck.SOURCE_AND_DEST_NOT_IN_WHITELIST;
-                        } else {
-                            return DimTeleportCheck.SOURCE_NOT_IN_WHITELIST;
-                        }
-                    }
-                    if (!destInList) {
-                        return DimTeleportCheck.DEST_NOT_IN_WHITELIST;
-                    }
-                    break;
-
-                case SOURCE_OR_DEST:
-                    if (!sourceInList && !destInList) {
-                        return DimTeleportCheck.SOURCE_AND_DEST_NOT_IN_WHITELIST;
-                    }
-                    break;
-            }
-        } else {
-            switch (config.dimBlacklistBehavior) {
-                case SOURCE:
-                    if (sourceInList) {
-                        return DimTeleportCheck.SOURCE_IN_BLACKLIST;
-                    }
-                    break;
-
-                case DEST:
-                    if (destInList) {
-                        return DimTeleportCheck.DEST_IN_BLACKLIST;
-                    }
-                    break;
-
-                case SOURCE_AND_DEST:
-                    if (sourceInList && destInList) {
-                        return DimTeleportCheck.SOURCE_AND_DEST_IN_BLACKLIST;
-                    }
-                    break;
-
-                case SOURCE_OR_DEST:
-                    if (sourceInList) {
-                        if (destInList) {
-                            return DimTeleportCheck.SOURCE_AND_DEST_IN_BLACKLIST;
-                        } else {
-                            return DimTeleportCheck.SOURCE_IN_BLACKLIST;
-                        }
-                    }
-                    if (destInList) {
-                        return DimTeleportCheck.DEST_IN_BLACKLIST;
-                    }
-                    break;
-            }
-        }
-
-        return DimTeleportCheck.ALLOWED;
     }
 
 
