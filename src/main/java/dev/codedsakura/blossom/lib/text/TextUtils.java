@@ -71,10 +71,7 @@ public class TextUtils {
     }
 
     public static TextColor parseColor(String color) {
-        return TextColor.parse(color)
-                .getOrThrow(false, e -> {
-                    throw new RuntimeException(e);
-                });
+        return TextColor.parse(color);
     }
 
     public static MutableText translation(String key, Object... args) {
