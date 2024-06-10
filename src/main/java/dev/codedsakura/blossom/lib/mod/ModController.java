@@ -13,15 +13,20 @@ public class ModController {
         MODS.add(new ModState(mod));
     }
 
-    public void init(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void init(CommandDispatcher<ServerCommandSource> dispatcher) {
         MODS.forEach(state -> {
             if (!state.enabled) {
-                state.mod.logger.warn("{} loaded, but not enabled", state.name);
+                state.mod.logger.warn("Loaded, but not enabled, skipping initialization");
                 return;
             }
-            state.mod.logger.info("Register commands for {}", state.name);
-            state.mod.getCommands().forEach(consumer -> consumer.accept(dispatcher));
-            state.initialized = true;
+            try {
+                state.mod.logger.info("Register commands");
+                state.mod.getCommands().forEach(consumer -> consumer.accept(dispatcher));
+                state.initialized = true;
+            } catch (Exception e) {
+                state.mod.logger.error("Failed to register commands", e);
+                state.enabled = false;
+            }
         });
     }
 

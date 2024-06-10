@@ -9,6 +9,7 @@ import dev.codedsakura.blossom.lib.mod.ModController;
 import dev.codedsakura.blossom.lib.permissions.Permissions;
 import dev.codedsakura.blossom.lib.teleport.TeleportUtils;
 import dev.codedsakura.blossom.lib.text.DimName;
+import dev.codedsakura.blossom.lib.text.TextSuperJoiner;
 import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
 import net.fabricmc.api.ModInitializer;
@@ -16,8 +17,11 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.command.argument.*;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
 import net.minecraft.util.math.Vec2f;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -195,6 +199,32 @@ public class BlossomLib implements ModInitializer {
                         return 1;
                     }));
 
+            dispatcher.register(literal("blossommods")
+                    .requires(Permissions.require("blossom.lib.command.blossommods", true))
+                    .executes(ctx -> {
+                        var modStates = new ArrayList<>(ModController.getAllModStates());
+                        modStates.add(new ModController.PublicModState("BlossomLib", true, true));
+
+                        MutableText result = modStates.stream()
+                                .map(m -> TextUtils.fTranslation(
+                                                m.name(),
+                                                m.initialized() ? TextUtils.Type.SUCCESS : (m.enabled() ? TextUtils.Type.ERROR : TextUtils.Type.WARN)
+                                        ).styled(style -> style.withHoverEvent(new HoverEvent(
+                                                HoverEvent.Action.SHOW_TEXT,
+                                                TextUtils.translation(
+                                                        "blossom.lib.modlist.hover",
+                                                        m.enabled() ? TextUtils.translation("blossom.lib.modlist.true") : TextUtils.translation("blossom.lib.modlist.false"),
+                                                        m.initialized() ? TextUtils.translation("blossom.lib.modlist.true") : TextUtils.translation("blossom.lib.modlist.false")
+                                                ))))
+                                )
+                                .collect(TextSuperJoiner.joiner(TextUtils.translation("blossom.lib.modlist.join")));
+
+                        TextUtils.sendRaw(ctx, TextUtils.translation("blossom.lib.modlist.header").append(result));
+
+                        return Command.SINGLE_SUCCESS;
+                    }));
+
+            ModController.init(dispatcher);
         });
 
         BlossomGlobals.LOGGER.info("BlossomLib has started");

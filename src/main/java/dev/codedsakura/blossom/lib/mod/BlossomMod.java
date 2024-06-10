@@ -26,16 +26,16 @@ public abstract class BlossomMod<T> {
 
     abstract public String getName();
 
-    void register() {
+    protected void register() {
         BlossomLib.registerSubMod(this);
     }
 
-    void initConfig() {
+    protected void initConfig() {
         ConfigManager.register(type, this.getName() + ".json", newConfig -> config = newConfig);
     }
 
-    void initLogger() {
-        logger = CustomLogger.createLogger("BlossomEnderChest");
+    protected void initLogger() {
+        logger = CustomLogger.createLogger(this.getName());
     }
 
     protected BlossomMod<T> addCommand(LiteralArgumentBuilder<ServerCommandSource> command) {
@@ -47,7 +47,7 @@ public abstract class BlossomMod<T> {
         return this;
     }
 
-    ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> getCommands() {
+    protected ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> getCommands() {
         return commands;
     }
 }
