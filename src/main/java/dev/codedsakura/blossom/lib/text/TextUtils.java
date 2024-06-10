@@ -72,7 +72,7 @@ public class TextUtils {
 
     public static TextColor parseColor(String color) {
         return TextColor.parse(color)
-                .getOrThrow(e -> {
+                .getOrThrow(false, e -> {
                     throw new RuntimeException(e);
                 });
     }

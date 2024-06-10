@@ -21,7 +21,7 @@ public class MC124177Fix {
         }
 
         for (StatusEffectInstance statusEffectInstance : self.getStatusEffects())
-            self.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(self.getId(), statusEffectInstance, false));
+            self.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(self.getId(), statusEffectInstance));
 
         self.networkHandler.sendPacket(new ExperienceBarUpdateS2CPacket(self.experienceProgress, self.totalExperience, self.experienceLevel));
     }

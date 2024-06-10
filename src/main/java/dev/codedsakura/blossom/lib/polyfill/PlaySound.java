@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlaySound {
     public static void playToPlayer(ServerPlayerEntity player, Sound sound) {
-        player.playSoundToPlayer(
+        player.playSound(
                 SoundEvent.of(IdentifierPolyfill.of(sound.id())),
                 SoundCategory.PLAYERS,
                 sound.volume(),
