@@ -1,6 +1,7 @@
 package dev.codedsakura.blossom.lib.text;
 
 import dev.codedsakura.blossom.lib.BlossomGlobals;
+import dev.codedsakura.blossom.lib.polyfill.IdentifierPolyfill;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,6 @@ public class DimName {
     }
 
     public static String get(String dimensionIdentifier) {
-        return get(new Identifier(dimensionIdentifier));
+        return get(IdentifierPolyfill.of(dimensionIdentifier));
     }
 }

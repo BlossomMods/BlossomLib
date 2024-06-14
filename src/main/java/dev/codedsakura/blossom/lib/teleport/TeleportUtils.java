@@ -2,6 +2,7 @@ package dev.codedsakura.blossom.lib.teleport;
 
 import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.permissions.Permissions;
+import dev.codedsakura.blossom.lib.polyfill.IdentifierPolyfill;
 import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.HashablePair;
 import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
@@ -31,7 +32,7 @@ public class TeleportUtils {
     private static final HashMap<HashablePair<UUID, Class<?>>, Long> COOLDOWNS = new HashMap<>();
     private static final HashMap<UUID, TeleportDestination> LAST_TELEPORT = new HashMap<>();
     private static final ArrayList<LastTeleportAddHook> LAST_TELEPORT_ADD_HOOKS = new ArrayList<>();
-    private static final String IDENTIFIER = "blossom:standstill";
+    private static final String ID_PATH_FORMAT = "standstill_%s";
 
     public static void tick() {
         TASKS.forEach(CounterRunnable::run);
@@ -49,7 +50,7 @@ public class TeleportUtils {
         CommandBossBar commandBossBar = null;
         int standTicks = config.standStill * 20;
         if (config.bossBar.enabled) {
-            Identifier id = new Identifier(IDENTIFIER + "_" + who.getUuidAsString());
+            Identifier id = IdentifierPolyfill.of("blossom", String.format(ID_PATH_FORMAT, who.getUuidAsString()));
             commandBossBar = Optional.ofNullable(server.getBossBarManager().get(id))
                     .orElseGet(() -> server.getBossBarManager().add(
                             id,
