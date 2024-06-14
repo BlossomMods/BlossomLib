@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
 public class MC124177Fix {
-    @Inject(method = "setServerWorld", at = @At("TAIL"))
+    @Inject(method = "setWorld", at = @At("TAIL"))
     void BlossomLib$teleportFix(ServerWorld destination, CallbackInfo cir) {
         ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
 
