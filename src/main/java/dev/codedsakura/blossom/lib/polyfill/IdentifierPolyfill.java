@@ -4,10 +4,10 @@ import net.minecraft.util.Identifier;
 
 public class IdentifierPolyfill {
     public static Identifier of(String namespace, String path) {
-        return Identifier.of(namespace, path);
+        return new Identifier(namespace, path);
     }
 
     public static Identifier of(String id) {
-        return Identifier.of(id);
+        return new Identifier(id);
     }
 }
