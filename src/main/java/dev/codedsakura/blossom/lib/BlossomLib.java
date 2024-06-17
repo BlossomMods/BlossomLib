@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.codedsakura.blossom.lib.config.ConfigManager;
-import dev.codedsakura.blossom.lib.mod.BlossomMod;
 import dev.codedsakura.blossom.lib.mod.ModController;
 import dev.codedsakura.blossom.lib.permissions.Permissions;
 import dev.codedsakura.blossom.lib.teleport.TeleportUtils;
@@ -228,9 +227,5 @@ public class BlossomLib implements ModInitializer {
         });
 
         BlossomGlobals.LOGGER.info("BlossomLib has started");
-    }
-
-    public static <T> void registerSubMod(BlossomMod<T> mod) {
-        ModController.register(mod);
     }
 }
