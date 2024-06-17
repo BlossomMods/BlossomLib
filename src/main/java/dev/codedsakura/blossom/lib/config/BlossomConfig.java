@@ -28,7 +28,7 @@ public class BlossomConfig {
     public static <T> @NotNull T load(Class<T> clazz, String filename) {
         Optional<Logger> optionalLogger = Optional.ofNullable(BlossomGlobals.LOGGER);
         optionalLogger
-                .ifPresent(l -> l.trace("loading config {}", filename));
+                .ifPresent(l -> l.debug("loading config {}", filename));
 
         var file = getFile(filename);
         T config = null;
@@ -61,13 +61,15 @@ public class BlossomConfig {
             }
         }
 
+        T finalConfig = config;
+        optionalLogger.ifPresent(l -> l.trace("{} data: {}", filename, finalConfig));
         BlossomConfig.save(config, filename);
         return config;
     }
 
     public static <T> void save(T config, String filename) {
         Optional<Logger> optionalLogger = Optional.ofNullable(BlossomGlobals.LOGGER);
-        optionalLogger.ifPresent(l -> l.trace("saving config {}", filename));
+        optionalLogger.ifPresent(l -> l.debug("saving config {}", filename));
 
         File file = getFile(filename);
         if (!file.getParentFile().exists()) {
