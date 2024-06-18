@@ -8,21 +8,16 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-record Config<T>(Class<T> clazz, Consumer<T> apply, String filename) {
-    void refresh() {
-        apply.accept(BlossomConfig.load(clazz, filename));
-    }
-}
-
 public class ConfigManager {
-    private static final ArrayList<Config<?>> configs = new ArrayList<>();
+    private static final ArrayList<Config<? extends BlossomConfig>> configs = new ArrayList<>();
 
-    public static <T> void register(Class<T> clazz, String filename, Consumer<T> apply) {
+    public static <T extends BlossomConfig> void register(Class<T> clazz, String filename, Consumer<T> apply) {
         Optional.ofNullable(BlossomGlobals.LOGGER)
                 .ifPresent(l -> l.trace("register config manager {}", filename));
 
-        configs.add(new Config<>(clazz, apply, filename));
-        apply.accept(BlossomConfig.load(clazz, filename));
+        Config<T> config = new Config<>(clazz, apply, filename);
+        configs.add(config);
+        apply.accept(ConfigFileController.load(config));
     }
 
     public static void unregister(Class<?> clazz) {
@@ -43,5 +38,11 @@ public class ConfigManager {
         return configs.stream()
                 .map(Config::clazz)
                 .collect(Collectors.toList());
+    }
+
+    public record Config<T extends BlossomConfig>(Class<T> clazz, Consumer<T> apply, String filename) {
+        void refresh() {
+            apply.accept(ConfigFileController.load(this));
+        }
     }
 }

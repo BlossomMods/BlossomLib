@@ -1,11 +1,12 @@
 package dev.codedsakura.blossom.lib;
 
+import dev.codedsakura.blossom.lib.config.BlossomConfig;
 import dev.codedsakura.blossom.lib.teleport.TeleportConfig;
 import org.apache.logging.log4j.Level;
 
 import java.util.Map;
 
-public class BlossomLibConfig {
+public class BlossomLibConfig extends BlossomConfig {
     public LoggingConfig logging = new LoggingConfig();
 
     public static class LoggingConfig {
@@ -34,4 +35,18 @@ public class BlossomLibConfig {
     public Map<String, String> dimNameOverrides = null;
 
     public boolean enableMC124177Fix = true;
+
+    @Override
+    protected int getLatestVersion() {
+        return 1;
+    }
+
+    @Override
+    public boolean update() {
+        if (version == null) {
+            baseTeleportation = baseTeleportation.cloneMergeDefault();
+            return true;
+        }
+        return false;
+    }
 }

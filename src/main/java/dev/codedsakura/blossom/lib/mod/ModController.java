@@ -1,6 +1,7 @@
 package dev.codedsakura.blossom.lib.mod;
 
 import com.mojang.brigadier.CommandDispatcher;
+import dev.codedsakura.blossom.lib.config.BlossomConfig;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.List;
 public class ModController {
     private static final ArrayList<ModState> MODS = new ArrayList<>();
 
-    public static <T> void register(BlossomMod<T> mod) {
+    public static <T extends BlossomConfig> void register(BlossomMod<T> mod) {
         MODS.add(new ModState(mod));
     }
 

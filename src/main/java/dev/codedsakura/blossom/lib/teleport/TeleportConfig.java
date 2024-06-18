@@ -1,5 +1,6 @@
 package dev.codedsakura.blossom.lib.teleport;
 
+import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +64,7 @@ public class TeleportConfig {
     }
 
 
-    TeleportConfig cloneMergeDefault() {
+    public TeleportConfig cloneMergeDefault() {
         return new Builder()
                 .setBossBarOrDefault(this.bossBar)
                 .setTitleMessageOrDefault(this.titleMessage)
@@ -83,7 +84,7 @@ public class TeleportConfig {
 
                 .setDimensionBlacklistOrDefault(this.dimensionBlacklist)
                 .setUseDimBlacklistAsWhitelistOrDefault(this.useDimBlacklistAsWhitelist)
-                .setDimBlacklistBehavior(this.dimBlacklistBehavior)
+                .setDimBlacklistBehaviorOrDefault(this.dimBlacklistBehavior)
                 .build();
     }
 
@@ -164,55 +165,81 @@ public class TeleportConfig {
 
 
         public Builder setBossBarOrDefault(@Nullable BossBarConfig bossBar) {
-            return this.setBossBar(Optional.ofNullable(bossBar).orElse(DEFAULT.bossBar));
+            return this.setBossBar(Optional.ofNullable(bossBar)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.bossBar))
+                    .orElse(DEFAULT.bossBar));
         }
 
         public Builder setTitleMessageOrDefault(@Nullable TitleMessageConfig titleMessage) {
-            return this.setTitleMessage(Optional.ofNullable(titleMessage).orElse(DEFAULT.titleMessage));
+            return this.setTitleMessage(Optional.ofNullable(titleMessage)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.titleMessage))
+                    .orElse(DEFAULT.titleMessage));
         }
 
         public Builder setActionBarMessageEnabledOrDefault(@Nullable Boolean actionBarMessageEnabled) {
-            return this.setActionBarMessageEnabled(Optional.ofNullable(actionBarMessageEnabled).orElse(DEFAULT.actionBarMessageEnabled));
+            return this.setActionBarMessageEnabled(Optional.ofNullable(actionBarMessageEnabled)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.actionBarMessageEnabled))
+                    .orElse(DEFAULT.actionBarMessageEnabled));
         }
 
         public Builder setFovEffectBeforeOrDefault(@Nullable CubicBezierCurve fovEffectBefore) {
-            return this.setFovEffectBefore(Optional.ofNullable(fovEffectBefore).orElse(DEFAULT.fovEffectBefore));
+            return this.setFovEffectBefore(Optional.ofNullable(fovEffectBefore)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.fovEffectBefore))
+                    .orElse(DEFAULT.fovEffectBefore));
         }
 
         public Builder setFovEffectAfterOrDefault(@Nullable CubicBezierCurve fovEffectAfter) {
-            return this.setFovEffectAfter(Optional.ofNullable(fovEffectAfter).orElse(DEFAULT.fovEffectAfter));
+            return this.setFovEffectAfter(Optional.ofNullable(fovEffectAfter)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.fovEffectAfter))
+                    .orElse(DEFAULT.fovEffectAfter));
         }
 
         public Builder setParticleAnimationOrDefault(@Nullable ParticleAnimation particleAnimation) {
-            return this.setParticleAnimation(Optional.ofNullable(particleAnimation).orElse(DEFAULT.particleAnimation));
+            return this.setParticleAnimation(Optional.ofNullable(particleAnimation)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.particleAnimation))
+                    .orElse(DEFAULT.particleAnimation));
         }
 
         public Builder setAllowBackOrDefault(@Nullable Boolean allowBack) {
-            return this.setAllowBack(Optional.ofNullable(allowBack).orElse(DEFAULT.allowBack));
+            return this.setAllowBack(Optional.ofNullable(allowBack)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.allowBack))
+                    .orElse(DEFAULT.allowBack));
         }
 
         public Builder setCancelOnMoveOrDefault(@Nullable Boolean cancelOnMove) {
-            return this.setCancelOnMove(Optional.ofNullable(cancelOnMove).orElse(DEFAULT.cancelOnMove));
+            return this.setCancelOnMove(Optional.ofNullable(cancelOnMove)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.cancelOnMove))
+                    .orElse(DEFAULT.cancelOnMove));
         }
 
         public Builder setStandStillOrDefault(@Nullable Integer standStill) {
-            return this.setStandStill(Optional.ofNullable(standStill).orElse(DEFAULT.standStill));
+            return this.setStandStill(Optional.ofNullable(standStill)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.standStill))
+                    .orElse(DEFAULT.standStill));
         }
 
         public Builder setCooldownOrDefault(@Nullable Integer cooldown) {
-            return this.setCooldown(Optional.ofNullable(cooldown).orElse(DEFAULT.cooldown));
+            return this.setCooldown(Optional.ofNullable(cooldown)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.cooldown))
+                    .orElse(DEFAULT.cooldown));
         }
 
         public Builder setDimensionBlacklistOrDefault(@Nullable List<String> dimensionBlacklist) {
-            return this.setDimensionBlacklist(Optional.ofNullable(dimensionBlacklist).orElse(DEFAULT.dimensionBlacklist));
+            return this.setDimensionBlacklist(Optional.ofNullable(dimensionBlacklist)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.dimensionBlacklist))
+                    .orElse(DEFAULT.dimensionBlacklist));
         }
 
         public Builder setUseDimBlacklistAsWhitelistOrDefault(@Nullable Boolean useDimBlacklistAsWhitelist) {
-            return this.setUseDimBlacklistAsWhitelist(Optional.ofNullable(useDimBlacklistAsWhitelist).orElse(DEFAULT.useDimBlacklistAsWhitelist));
+            return this.setUseDimBlacklistAsWhitelist(Optional.ofNullable(useDimBlacklistAsWhitelist)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.useDimBlacklistAsWhitelist))
+                    .orElse(DEFAULT.useDimBlacklistAsWhitelist));
         }
 
         public Builder setDimBlacklistBehaviorOrDefault(@Nullable DimBlacklistBehavior dimBlacklistBehavior) {
-            return this.setDimBlacklistBehavior(Optional.ofNullable(dimBlacklistBehavior).orElse(DEFAULT.dimBlacklistBehavior));
+            return this.setDimBlacklistBehavior(Optional.ofNullable(dimBlacklistBehavior)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.dimBlacklistBehavior))
+                    .orElse(DEFAULT.dimBlacklistBehavior));
         }
 
 

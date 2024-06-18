@@ -2,6 +2,7 @@ package dev.codedsakura.blossom.lib.mod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.codedsakura.blossom.lib.config.BlossomConfig;
 import dev.codedsakura.blossom.lib.config.ConfigManager;
 import dev.codedsakura.blossom.lib.utils.CustomLogger;
 import net.minecraft.server.command.ServerCommandSource;
@@ -10,7 +11,7 @@ import org.apache.logging.log4j.core.Logger;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class BlossomMod<T> {
+public abstract class BlossomMod<T extends BlossomConfig> {
     private final Class<T> type;
     private final ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> commands = new ArrayList<>();
     public T config;
