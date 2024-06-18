@@ -2,6 +2,7 @@ package dev.codedsakura.blossom.lib;
 
 import dev.codedsakura.blossom.lib.config.BlossomConfig;
 import dev.codedsakura.blossom.lib.teleport.TeleportConfig;
+import dev.codedsakura.blossom.lib.utils.gson.SerializeNull;
 import org.apache.logging.log4j.Level;
 
 import java.util.Map;
@@ -32,6 +33,7 @@ public class BlossomLibConfig extends BlossomConfig {
         public String commandDescription = "white";
     }
 
+    @SerializeNull
     public Map<String, String> dimNameOverrides = null;
 
     public boolean enableMC124177Fix = true;

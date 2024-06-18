@@ -6,6 +6,7 @@ import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.utils.CubicBezierCurve;
 import dev.codedsakura.blossom.lib.utils.gson.CubicBezierCurveSerializer;
 import dev.codedsakura.blossom.lib.utils.gson.DeprecatedExclusionStrategy;
+import dev.codedsakura.blossom.lib.utils.gson.SerializeNullConverter;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.core.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +21,9 @@ import java.util.Optional;
 public class ConfigFileController {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(CubicBezierCurve.class, new CubicBezierCurveSerializer())
+            .registerTypeAdapterFactory(new SerializeNullConverter())
             .addSerializationExclusionStrategy(new DeprecatedExclusionStrategy())
             .setPrettyPrinting()
-            .serializeNulls()
             .disableHtmlEscaping()
             .create();
 
