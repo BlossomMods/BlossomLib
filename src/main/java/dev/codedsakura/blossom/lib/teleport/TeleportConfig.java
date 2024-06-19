@@ -23,6 +23,7 @@ public class TeleportConfig {
 
             .setAllowBack(true)
             .setCancelOnMove(false)
+            .setMoveThreshold(.05)
 
             .setStandStill(3)
             .setCooldown(30)
@@ -87,6 +88,7 @@ public class TeleportConfig {
 
                 .setAllowBackOrDefault(this.allowBack)
                 .setCancelOnMoveOrDefault(this.cancelOnMove)
+                .setMoveThresholdOrDefault(this.moveThreshold)
 
                 .setStandStillOrDefault(this.standStill)
                 .setCooldownOrDefault(this.cooldown)
@@ -184,6 +186,16 @@ public class TeleportConfig {
             return this.setCancelOnMove(Optional.ofNullable(cancelOnMove)
                     .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.cancelOnMove))
                     .orElse(Objects.requireNonNull(DEFAULT.cancelOnMove)));
+        }
+
+        public Builder setMoveThreshold(double moveThreshold) {
+            config.moveThreshold = moveThreshold;
+            return this;
+        }
+        public Builder setMoveThresholdOrDefault(@Nullable Double moveThreshold) {
+            return this.setMoveThreshold(Optional.ofNullable(moveThreshold)
+                    .or(() -> Optional.ofNullable(BlossomGlobals.CONFIG).map(c -> c.baseTeleportation.moveThreshold))
+                    .orElse(Objects.requireNonNull(DEFAULT.moveThreshold)));
         }
 
 

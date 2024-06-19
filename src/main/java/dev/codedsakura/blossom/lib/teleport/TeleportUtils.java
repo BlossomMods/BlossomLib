@@ -116,10 +116,13 @@ public class TeleportUtils {
                 if (counter < 1) {
                     return true;
                 }
+                if (config.moveThreshold > 9.99) {
+                    return true;
+                }
 
                 Vec3d pos = who.getPos();
                 double dist = lastPos[0].distanceTo(pos);
-                if (dist < .05) {
+                if (dist < config.moveThreshold) {
                     if (dist != 0) lastPos[0] = pos;
                     return true;
                 } else {
