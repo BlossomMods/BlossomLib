@@ -39,9 +39,9 @@ public class TeleportUtils {
 
     public static void genericCountdown(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayerEntity who, Runnable onDone) {
         LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUuid(), standStillTime);
-        MinecraftServer server = who.getServer();
+        MinecraftServer server = who.getEntityWorld().getServer();
         assert server != null;
-        final Vec3d[] lastPos = {who.getPos()};
+        final Vec3d[] lastPos = {new Vec3d(who.getX(), who.getY(), who.getZ())};
 
         final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
 
@@ -122,7 +122,7 @@ public class TeleportUtils {
                     return true;
                 }
 
-                Vec3d pos = who.getPos();
+                Vec3d pos = new Vec3d(who.getX(), who.getY(), who.getZ());
                 double dist = lastPos[0].distanceTo(pos);
                 if (dist < .05) {
                     if (dist != 0) lastPos[0] = pos;
@@ -326,7 +326,7 @@ public class TeleportUtils {
         }
 
         public TeleportDestination(PlayerEntity player) {
-            this((ServerWorld) player.getWorld(), player.getPos(), player.getYaw(), player.getPitch());
+            this((ServerWorld) player.getEntityWorld(), new Vec3d(player.getX(), player.getY(), player.getZ()), player.getYaw(), player.getPitch());
         }
 
         public TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {

@@ -1,6 +1,7 @@
 # 2.5.15
 
-* Update to support 1.21.8
+* Update to support 1.21.9
+* Fix compilation errors for Minecraft 1.21.9 with updated Yarn mappings
 
 # 2.5.14
 
