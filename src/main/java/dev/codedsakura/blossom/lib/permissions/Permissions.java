@@ -82,7 +82,7 @@ public class Permissions {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.check(entity, permission, level);
         }
-        World world = entity.getWorld();
+        World world = entity.getEntityWorld();
         return entity.getCommandSource(world instanceof ServerWorld ? (ServerWorld)world : null).hasPermissionLevel(level);
     }
 }
