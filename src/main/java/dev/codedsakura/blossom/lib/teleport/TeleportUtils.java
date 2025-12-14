@@ -4,19 +4,19 @@ import dev.codedsakura.blossom.lib.BlossomGlobals;
 import dev.codedsakura.blossom.lib.text.TextUtils;
 import dev.codedsakura.blossom.lib.utils.HashablePair;
 import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
-import net.minecraft.entity.boss.BossBar;
-import net.minecraft.entity.boss.CommandBossBar;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.bossevents.CustomBossEvent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.BossEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -37,45 +37,45 @@ public class TeleportUtils {
         TASKS.removeIf(CounterRunnable::shouldRemove);
     }
 
-    public static void genericCountdown(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayerEntity who, Runnable onDone) {
-        LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUuid(), standStillTime);
-        MinecraftServer server = who.getEntityWorld().getServer();
-        final Vec3d[] lastPos = {who.getEntityPos()};
+    public static void genericCountdown(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayer who, Runnable onDone) {
+        LOGGER.debug("Create new genericCountdown for {} ({} s)", who.getUUID(), standStillTime);
+        MinecraftServer server = who.level().getServer();
+        final Vec3[] lastPos = {who.position()};
 
         final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
 
-        CommandBossBar commandBossBar = null;
+        CustomBossEvent commandBossBar = null;
         int standTicks = (int) (standStillTime * 20);
         if (config.bossBar.enabled) {
-            Identifier id = Identifier.of(IDENTIFIER + "_" + who.getUuidAsString());
-            commandBossBar = Optional.ofNullable(server.getBossBarManager().get(id))
-                    .orElseGet(() -> server.getBossBarManager().add(
+            Identifier id = Identifier.parse(IDENTIFIER + "_" + who.getStringUUID());
+            commandBossBar = Optional.ofNullable(server.getCustomBossEvents().get(id))
+                    .orElseGet(() -> server.getCustomBossEvents().create(
                             id,
                             TextUtils.translation(
                                     "blossom.countdown.boss_bar.name",
-                                    Text.literal(Integer.toString(standTicks))
-                                            .styled(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)))
-                            ).styled(style -> style.withColor(TextUtils.parseColor(config.bossBar.textColor)))
+                                    Component.literal(Integer.toString(standTicks))
+                                            .withStyle(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)))
+                            ).withStyle(style -> style.withColor(TextUtils.parseColor(config.bossBar.textColor)))
                     ));
 
 
 
             commandBossBar.setColor(
-                    Arrays.stream(BossBar.Color.values())
+                    Arrays.stream(BossEvent.BossBarColor.values())
                             .filter(c -> c.getName().equals(config.bossBar.color))
                             .findFirst()
-                            .orElse(BossBar.Color.PURPLE)
+                            .orElse(BossEvent.BossBarColor.PURPLE)
             );
-            commandBossBar.clearPlayers();
+            commandBossBar.removeAllPlayers();
             commandBossBar.addPlayer(who);
         }
-        who.networkHandler.sendPacket(new TitleFadeS2CPacket(0, 10, 5));
+        who.connection.send(new ClientboundSetTitlesAnimationPacket(0, 10, 5));
 
-        CommandBossBar finalCommandBossBar = commandBossBar;
+        CustomBossEvent finalCommandBossBar = commandBossBar;
         float[] lastFovMultiplier = new float[]{1f};
         int endAt = config.fovEffectAfter.isEnabled() ? -config.fovEffectAfter.getStepCount() - 1 : 0;
 
-        TASKS.add(new CounterRunnable(standTicks, endAt, who.getUuid()) {
+        TASKS.add(new CounterRunnable(standTicks, endAt, who.getUUID()) {
             private void handleZero() {
                 if (counter != 0) {
                     return;
@@ -84,16 +84,16 @@ public class TeleportUtils {
                 LOGGER.debug("genericCountdown for {} has ended", player);
                 cleanUp();
                 if (config.titleMessage.enabled) {
-                    who.networkHandler.sendPacket(new SubtitleS2CPacket(
+                    who.connection.send(new ClientboundSetSubtitleTextPacket(
                             config.titleMessage.subtitleDone.getText("blossom.countdown.title.done.subtitle")
                     ));
-                    who.networkHandler.sendPacket(new TitleS2CPacket(
+                    who.connection.send(new ClientboundSetTitleTextPacket(
                             config.titleMessage.titleDone.getText("blossom.countdown.title.done.title")
                     ));
                 }
 
                 if (config.actionBarMessageEnabled) {
-                    who.sendMessage(
+                    who.displayClientMessage(
                             TextUtils.translation("blossom.countdown.action_bar.done"),
                             true
                     );
@@ -121,7 +121,7 @@ public class TeleportUtils {
                     return true;
                 }
 
-                Vec3d pos = who.getEntityPos();
+                Vec3 pos = who.position();
                 double dist = lastPos[0].distanceTo(pos);
                 if (dist < .05) {
                     if (dist != 0) lastPos[0] = pos;
@@ -143,26 +143,26 @@ public class TeleportUtils {
                 int remaining = (int) Math.floor((counter / 20f) + 1);
 
                 if (finalCommandBossBar != null) {
-                    finalCommandBossBar.setPercent((float) counter / standTicks);
+                    finalCommandBossBar.setProgress((float) counter / standTicks);
                     finalCommandBossBar.setName(
                             TextUtils.translation(
                                     "blossom.countdown.boss_bar.name",
-                                    Text.literal(Integer.toString(remaining))
-                                            .styled(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)))
-                            ).styled(style -> style.withColor(TextUtils.parseColor(config.bossBar.textColor)))
+                                    Component.literal(Integer.toString(remaining))
+                                            .withStyle(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)))
+                            ).withStyle(style -> style.withColor(TextUtils.parseColor(config.bossBar.textColor)))
                     );
                 }
                 if (config.actionBarMessageEnabled) {
-                    who.sendMessage(
+                    who.displayClientMessage(
                             TextUtils.translation("blossom.countdown.action_bar.counting", remaining),
                             true
                     );
                 }
                 if (config.titleMessage.enabled) {
-                    who.networkHandler.sendPacket(new SubtitleS2CPacket(
+                    who.connection.send(new ClientboundSetSubtitleTextPacket(
                             config.titleMessage.subtitleCounting.getText("blossom.countdown.title.counting.subtitle", remaining)
                     ));
-                    who.networkHandler.sendPacket(new TitleS2CPacket(
+                    who.connection.send(new ClientboundSetTitleTextPacket(
                             config.titleMessage.titleCounting.getText("blossom.countdown.title.counting.title", remaining)
                     ));
                 }
@@ -192,7 +192,7 @@ public class TeleportUtils {
             protected void cleanUp() {
                 if (finalCommandBossBar != null) {
                     finalCommandBossBar.removePlayer(who);
-                    server.getBossBarManager().remove(finalCommandBossBar);
+                    server.getCustomBossEvents().remove(finalCommandBossBar);
                 }
 
                 if (counter != 0) {
@@ -242,21 +242,21 @@ public class TeleportUtils {
     }
 
 
-    public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayerEntity who, GetDestination getWhere) {
+    public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, ServerPlayer who, GetDestination getWhere) {
         return teleport(customConfig, standStillTime, 0, TeleportUtils.class, who, getWhere);
     }
 
     public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, long cooldownTime,
-                                   Class<?> cooldownClass, ServerPlayerEntity who, GetDestination getWhere) {
-        if (hasCountdowns(who.getUuid())) {
-            who.sendMessage(TextUtils.fTranslation("blossom.error.has-countdown", TextUtils.Type.ERROR), false);
+                                   Class<?> cooldownClass, ServerPlayer who, GetDestination getWhere) {
+        if (hasCountdowns(who.getUUID())) {
+            who.displayClientMessage(TextUtils.fTranslation("blossom.error.has-countdown", TextUtils.Type.ERROR), false);
             return false;
         }
-        HashablePair<UUID, Class<?>> pair = new HashablePair<>(who.getUuid(), cooldownClass);
+        HashablePair<UUID, Class<?>> pair = new HashablePair<>(who.getUUID(), cooldownClass);
         if (COOLDOWNS.containsKey(pair)) {
             long timeLeft = COOLDOWNS.get(pair) - new Date().getTime() / 1000;
             if (timeLeft > 0) {
-                who.sendMessage(TextUtils.fTranslation("blossom.error.has-cooldown", TextUtils.Type.ERROR, timeLeft), false);
+                who.displayClientMessage(TextUtils.fTranslation("blossom.error.has-cooldown", TextUtils.Type.ERROR, timeLeft), false);
                 return false;
             }
         }
@@ -265,10 +265,10 @@ public class TeleportUtils {
         genericCountdown(customConfig, standStillTime, who, () -> {
             final TeleportConfig config = customConfig == null ? BlossomGlobals.CONFIG.baseTeleportation : customConfig.cloneMerge();
             if (config.allowBack) {
-                TeleportUtils.addLastTeleport(who.getUuid(), new TeleportDestination(who));
+                TeleportUtils.addLastTeleport(who.getUUID(), new TeleportDestination(who));
             }
             TeleportDestination where = getWhere.get();
-            who.teleport(where.world, where.x, where.y, where.z, Set.of(), where.yaw, where.pitch, false);
+            who.teleportTo(where.world, where.x, where.y, where.z, Set.of(), where.yaw, where.pitch, false);
             COOLDOWNS.put(pair, new Date().getTime() / 1000 + cooldownTime);
         });
         return true;
@@ -309,27 +309,27 @@ public class TeleportUtils {
 
     @SuppressWarnings("ClassCanBeRecord")
     public static class TeleportDestination {
-        final public ServerWorld world;
+        final public ServerLevel world;
         final public double x, y, z;
         final public float yaw, pitch;
 
-        public TeleportDestination(ServerWorld world, Vec3d pos, float yaw, float pitch) {
+        public TeleportDestination(ServerLevel world, Vec3 pos, float yaw, float pitch) {
             this(world, pos.x, pos.y, pos.z, yaw, pitch);
         }
 
-        public TeleportDestination(ServerWorld world, double x, double y, double z, Vec2f rotation) {
+        public TeleportDestination(ServerLevel world, double x, double y, double z, Vec2 rotation) {
             this(world, x, y, z, rotation.x, rotation.y);
         }
 
-        public TeleportDestination(ServerWorld world, Vec3d pos, Vec2f rotation) {
+        public TeleportDestination(ServerLevel world, Vec3 pos, Vec2 rotation) {
             this(world, pos.x, pos.y, pos.z, rotation.x, rotation.y);
         }
 
-        public TeleportDestination(PlayerEntity player) {
-            this((ServerWorld) player.getEntityWorld(), player.getEntityPos(), player.getYaw(), player.getPitch());
+        public TeleportDestination(Player player) {
+            this((ServerLevel) player.level(), player.position(), player.getYRot(), player.getXRot());
         }
 
-        public TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {
+        public TeleportDestination(ServerLevel world, double x, double y, double z, float yaw, float pitch) {
             this.world = world;
             this.x = x;
             this.y = y;

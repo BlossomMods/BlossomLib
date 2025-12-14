@@ -1,3 +1,7 @@
+# 2.5.18
+
+* Update to support 1.21.11
+
 # 2.5.17
 
 * Fix support for 1.21.10

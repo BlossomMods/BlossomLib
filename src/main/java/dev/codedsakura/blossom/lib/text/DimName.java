@@ -1,16 +1,16 @@
 package dev.codedsakura.blossom.lib.text;
 
 import dev.codedsakura.blossom.lib.BlossomGlobals;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class DimName {
-    public static String get(ServerWorld world) {
-        return get(world.getRegistryKey().getValue());
+    public static String get(ServerLevel world) {
+        return get(world.dimension().identifier());
     }
 
     public static String get(Identifier dimensionIdentifier) {
@@ -31,6 +31,6 @@ public class DimName {
     }
 
     public static String get(String dimensionIdentifier) {
-        return get(Identifier.of(dimensionIdentifier));
+        return get(Identifier.parse(dimensionIdentifier));
     }
 }

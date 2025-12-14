@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import dev.codedsakura.blossom.lib.BlossomGlobals;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.*;
 
@@ -50,7 +50,7 @@ public abstract class DataController<T> {
     }
 
     private File getFile(MinecraftServer server) {
-        return server.getSavePath(WorldSavePath.ROOT)
+        return server.getWorldPath(LevelResource.ROOT)
                 .resolve("data")
                 .resolve(getFilename() + ".json")
                 .toFile();

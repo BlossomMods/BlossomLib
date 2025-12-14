@@ -1,53 +1,53 @@
 package dev.codedsakura.blossom.lib.text;
 
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Arrays;
 
 import static dev.codedsakura.blossom.lib.BlossomGlobals.CONFIG;
 
 public class TextUtils {
-    public static MutableText variable(String str) {
-        return Text.literal(str)
-                .styled(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)));
+    public static MutableComponent variable(String str) {
+        return Component.literal(str)
+                .withStyle(style -> style.withColor(TextUtils.parseColor(CONFIG.colors.variable)));
     }
 
-    public static MutableText variable(int var) {
+    public static MutableComponent variable(int var) {
         return variable(Integer.toString(var));
     }
 
-    public static MutableText variable(long var) {
+    public static MutableComponent variable(long var) {
         return variable(Long.toString(var));
     }
 
-    public static MutableText variable(float var) {
+    public static MutableComponent variable(float var) {
         return variable(Float.toString(var));
     }
 
-    public static MutableText variable(double var) {
+    public static MutableComponent variable(double var) {
         return variable(Double.toString(var));
     }
 
-    public static MutableText variable(Object var) {
-        if (var instanceof PlayerEntity) {
-            return player((PlayerEntity) var);
+    public static MutableComponent variable(Object var) {
+        if (var instanceof Player) {
+            return player((Player) var);
         } else if (var instanceof CommandTextBuilder) {
             return ((CommandTextBuilder) var).asColoredText().copy();
-        } else if (var instanceof Text) {
-            return ((Text) var).copy();
+        } else if (var instanceof Component) {
+            return ((Component) var).copy();
         }
         return variable(var.toString());
     }
 
 
-    public static MutableText player(PlayerEntity player) {
+    public static MutableComponent player(Player player) {
         return player.getDisplayName().copy()
-                .styled(style -> {
+                .withStyle(style -> {
                     if (style.getColor() == null) {
                         return style.withColor(TextUtils.parseColor(CONFIG.colors.player));
                     }
@@ -58,11 +58,11 @@ public class TextUtils {
 
     public enum Type {ERROR, WARN, INFO, SUCCESS}
 
-    public static MutableText fTranslation(String key, Type t, Object... args) {
-        return Text.translatable(
+    public static MutableComponent fTranslation(String key, Type t, Object... args) {
+        return Component.translatable(
                 key,
                 Arrays.stream(args).map(TextUtils::variable).toArray()
-        ).styled(style -> switch (t) {
+        ).withStyle(style -> switch (t) {
             case ERROR -> style.withColor(TextUtils.parseColor(CONFIG.colors.error));
             case WARN -> style.withColor(TextUtils.parseColor(CONFIG.colors.warn));
             case INFO -> style.withColor(TextUtils.parseColor(CONFIG.colors.base));
@@ -71,41 +71,41 @@ public class TextUtils {
     }
 
     public static TextColor parseColor(String color) {
-        return TextColor.parse(color)
+        return TextColor.parseColor(color)
                 .getOrThrow(e -> {
                     throw new RuntimeException(e);
                 });
     }
 
-    public static MutableText translation(String key, Object... args) {
+    public static MutableComponent translation(String key, Object... args) {
         return fTranslation(key, Type.INFO, args);
     }
 
-    public static void send(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> translation(key, args), false);
+    public static void send(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> translation(key, args), false);
     }
 
-    public static void sendOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> translation(key, args), true);
+    public static void sendOps(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> translation(key, args), true);
     }
 
-    public static void sendWarn(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.WARN, args), false);
+    public static void sendWarn(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> fTranslation(key, Type.WARN, args), false);
     }
 
-    public static void sendWarnOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.WARN, args), true);
+    public static void sendWarnOps(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> fTranslation(key, Type.WARN, args), true);
     }
 
-    public static void sendSuccess(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.SUCCESS, args), false);
+    public static void sendSuccess(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> fTranslation(key, Type.SUCCESS, args), false);
     }
 
-    public static void sendSuccessOps(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendFeedback(() -> fTranslation(key, Type.SUCCESS, args), true);
+    public static void sendSuccessOps(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendSuccess(() -> fTranslation(key, Type.SUCCESS, args), true);
     }
 
-    public static void sendErr(CommandContext<ServerCommandSource> ctx, String key, Object... args) {
-        ctx.getSource().sendError(fTranslation(key, Type.ERROR, args));
+    public static void sendErr(CommandContext<CommandSourceStack> ctx, String key, Object... args) {
+        ctx.getSource().sendFailure(fTranslation(key, Type.ERROR, args));
     }
 }

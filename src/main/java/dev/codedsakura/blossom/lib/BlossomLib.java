@@ -15,26 +15,26 @@ import dev.codedsakura.blossom.lib.utils.PlayerSetFoV;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.RotationArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.coordinates.RotationArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 
 public class BlossomLib implements ModInitializer {
-    private static final ArrayList<LiteralArgumentBuilder<ServerCommandSource>> COMMANDS = new ArrayList<>();
-    private static final ArrayList<Consumer<CommandDispatcher<ServerCommandSource>>> COMMAND_CONSUMERS = new ArrayList<>();
+    private static final ArrayList<LiteralArgumentBuilder<CommandSourceStack>> COMMANDS = new ArrayList<>();
+    private static final ArrayList<Consumer<CommandDispatcher<CommandSourceStack>>> COMMAND_CONSUMERS = new ArrayList<>();
 
     @Override
     public void onInitialize() {
@@ -78,10 +78,10 @@ public class BlossomLib implements ModInitializer {
                                 TextUtils.sendOps(ctx, "blossom.clear-countdowns.all");
                                 return 1;
                             })
-                            .then(argument("player", EntityArgumentType.player())
+                            .then(argument("player", EntityArgument.player())
                                     .executes(ctx -> {
-                                        ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
-                                        TeleportUtils.cancelCountdowns(player.getUuid());
+                                        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+                                        TeleportUtils.cancelCountdowns(player.getUUID());
                                         TextUtils.sendOps(ctx, "blossom.clear-countdowns.one", player);
                                         return 1;
                                     })))
@@ -92,17 +92,17 @@ public class BlossomLib implements ModInitializer {
                                 TextUtils.sendOps(ctx, "blossom.clear-cooldowns.all");
                                 return 1;
                             })
-                            .then(argument("player", EntityArgumentType.player())
+                            .then(argument("player", EntityArgument.player())
                                     .executes(ctx -> {
-                                        ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
-                                        TeleportUtils.cancelCooldowns(player.getUuid());
+                                        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+                                        TeleportUtils.cancelCooldowns(player.getUUID());
                                         TextUtils.sendOps(ctx, "blossom.clear-cooldowns.one", player);
                                         return 1;
                                     })
                                     .then(argument("type", StringArgumentType.greedyString())
                                             .suggests((ctx, builder) -> {
                                                 String start = builder.getRemaining().toLowerCase();
-                                                TeleportUtils.getCooldowns(EntityArgumentType.getPlayer(ctx, "player").getUuid())
+                                                TeleportUtils.getCooldowns(EntityArgument.getPlayer(ctx, "player").getUUID())
                                                         .stream()
                                                         .map(Class::getSimpleName)
                                                         .sorted(String::compareToIgnoreCase)
@@ -112,7 +112,7 @@ public class BlossomLib implements ModInitializer {
                                             })
                                             .executes(ctx -> {
                                                 String type = StringArgumentType.getString(ctx, "type");
-                                                UUID player = EntityArgumentType.getPlayer(ctx, "player").getUuid();
+                                                UUID player = EntityArgument.getPlayer(ctx, "player").getUUID();
                                                 Class<?> target = TeleportUtils.getCooldowns(player)
                                                         .stream()
                                                         .filter(c -> c.getSimpleName().equals(type))
@@ -127,7 +127,7 @@ public class BlossomLib implements ModInitializer {
                                     .then(argument("standStill", IntegerArgumentType.integer(0))
                                             .executes(ctx -> {
                                                 int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
-                                                ServerPlayerEntity player = ctx.getSource().getPlayer();
+                                                ServerPlayer player = ctx.getSource().getPlayer();
                                                 if (player == null) {
                                                     return 1;
                                                 }
@@ -146,10 +146,10 @@ public class BlossomLib implements ModInitializer {
                                             })))
                             .then(literal("teleport")
                                     .then(argument("standStill", IntegerArgumentType.integer(0))
-                                            .then(argument("pos", Vec3ArgumentType.vec3(true))
-                                                    .then(argument("rot", RotationArgumentType.rotation())
+                                            .then(argument("pos", Vec3Argument.vec3(true))
+                                                    .then(argument("rot", RotationArgument.rotation())
                                                             .executes(ctx -> {
-                                                                Vec2f rot = RotationArgumentType.getRotation(ctx, "rot")
+                                                                Vec2 rot = RotationArgument.getRotation(ctx, "rot")
                                                                         .getRotation(ctx.getSource());
                                                                 int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
                                                                 TextUtils.send(ctx, "blossom.debug.teleport.no-cooldown", standStill);
@@ -158,21 +158,21 @@ public class BlossomLib implements ModInitializer {
                                                                         standStill,
                                                                         ctx.getSource().getPlayer(),
                                                                         () -> new TeleportUtils.TeleportDestination(
-                                                                                ctx.getSource().getWorld(),
-                                                                                Vec3ArgumentType.getVec3(ctx, "pos"),
+                                                                                ctx.getSource().getLevel(),
+                                                                                Vec3Argument.getVec3(ctx, "pos"),
                                                                                 rot.y, rot.x
                                                                         )
                                                                 ) ? 1 : 0;
                                                             })))
                                             .then(argument("cooldown", IntegerArgumentType.integer())
-                                                    .then(argument("pos", Vec3ArgumentType.vec3(true))
-                                                            .then(argument("rot", RotationArgumentType.rotation())
+                                                    .then(argument("pos", Vec3Argument.vec3(true))
+                                                            .then(argument("rot", RotationArgument.rotation())
                                                                     .executes(ctx -> {
-                                                                        Vec2f rot = RotationArgumentType.getRotation(ctx, "rot")
+                                                                        Vec2 rot = RotationArgument.getRotation(ctx, "rot")
                                                                                 .getRotation(ctx.getSource());
                                                                         int standStill = IntegerArgumentType.getInteger(ctx, "standStill");
                                                                         int cooldown = IntegerArgumentType.getInteger(ctx, "cooldown");
-                                                                        ServerPlayerEntity player = ctx.getSource().getPlayer();
+                                                                        ServerPlayer player = ctx.getSource().getPlayer();
                                                                         if (player == null) {
                                                                             return 1;
                                                                         }
@@ -184,8 +184,8 @@ public class BlossomLib implements ModInitializer {
                                                                                 BlossomLib.class,
                                                                                 player,
                                                                                 () -> new TeleportUtils.TeleportDestination(
-                                                                                        ctx.getSource().getWorld(),
-                                                                                        Vec3ArgumentType.getVec3(ctx, "pos"),
+                                                                                        ctx.getSource().getLevel(),
+                                                                                        Vec3Argument.getVec3(ctx, "pos"),
                                                                                         rot.y, rot.x
                                                                                 )
                                                                         ) ? 1 : 0;
@@ -200,9 +200,9 @@ public class BlossomLib implements ModInitializer {
                                                 return Command.SINGLE_SUCCESS;
                                             })))
                             .then(literal("dimName")
-                                    .then(argument("identifier", IdentifierArgumentType.identifier())
+                                    .then(argument("identifier", IdentifierArgument.id())
                                             .executes(ctx -> {
-                                                TextUtils.send(ctx, "Result: %s", DimName.get(IdentifierArgumentType.getIdentifier(ctx, "identifier")));
+                                                TextUtils.send(ctx, "Result: %s", DimName.get(IdentifierArgument.getId(ctx, "identifier")));
                                                 return Command.SINGLE_SUCCESS;
                                             })))));
 
@@ -210,10 +210,10 @@ public class BlossomLib implements ModInitializer {
                     .requires(
                             Permissions.require("blossom.tpcancel", true))
                     .executes(ctx -> {
-                        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
-                        if (TeleportUtils.hasCountdowns(player.getUuid())) {
-                            TeleportUtils.cancelCountdowns(player.getUuid());
+                        if (TeleportUtils.hasCountdowns(player.getUUID())) {
+                            TeleportUtils.cancelCountdowns(player.getUUID());
                             TextUtils.send(ctx, "blossom.tpcancel");
                         } else {
                             TextUtils.send(ctx, "blossom.tpcancel.fail");
@@ -229,11 +229,11 @@ public class BlossomLib implements ModInitializer {
         BlossomGlobals.LOGGER.info("BlossomLib has starting");
     }
 
-    public static void addCommand(LiteralArgumentBuilder<ServerCommandSource> command) {
+    public static void addCommand(LiteralArgumentBuilder<CommandSourceStack> command) {
         COMMANDS.add(command);
     }
 
-    public static void registerCommand(Consumer<CommandDispatcher<ServerCommandSource>> callback) {
+    public static void registerCommand(Consumer<CommandDispatcher<CommandSourceStack>> callback) {
         COMMAND_CONSUMERS.add(callback);
     }
 }

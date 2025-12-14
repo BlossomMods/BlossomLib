@@ -1,10 +1,12 @@
 package dev.codedsakura.blossom.lib.permissions;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -28,7 +30,7 @@ public class Permissions {
     /**
      * @see me.lucko.fabric.api.permissions.v0.Permissions#require(String, boolean)
      */
-    public static Predicate<ServerCommandSource> require(@NotNull String permission, boolean defaultValue) {
+    public static Predicate<CommandSourceStack> require(@NotNull String permission, boolean defaultValue) {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.require(permission, defaultValue);
         }
@@ -38,17 +40,20 @@ public class Permissions {
     /**
      * @see me.lucko.fabric.api.permissions.v0.Permissions#require(String, int)
      */
-    public static Predicate<ServerCommandSource> require(@NotNull String permission, int level) {
+    public static Predicate<CommandSourceStack> require(@NotNull String permission, int level) {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.require(permission, level);
         }
-        return player -> player.hasPermissionLevel(level);
+        return player -> player.permissions()
+                .hasPermission(
+                        new Permission.HasCommandLevel(PermissionLevel.byId(level))
+                );
     }
 
     /**
      * @see me.lucko.fabric.api.permissions.v0.Permissions#check(Entity, String, boolean)
      */
-    public static boolean check(@NotNull ServerCommandSource source, @NotNull String permission, boolean fallback) {
+    public static boolean check(@NotNull CommandSourceStack source, @NotNull String permission, boolean fallback) {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.check(source, permission, fallback);
         }
@@ -58,11 +63,14 @@ public class Permissions {
     /**
      * @see me.lucko.fabric.api.permissions.v0.Permissions#check(Entity, String, int)
      */
-    public static boolean check(@NotNull ServerCommandSource source, @NotNull String permission, int level) {
+    public static boolean check(@NotNull CommandSourceStack source, @NotNull String permission, int level) {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.check(source, permission, level);
         }
-        return source.hasPermissionLevel(level);
+        return source.permissions()
+                .hasPermission(
+                        new Permission.HasCommandLevel(PermissionLevel.byId(level))
+                );
     }
 
     /**
@@ -82,7 +90,11 @@ public class Permissions {
         if (isFPAPILoaded()) {
             return PermissionsExecutor.check(entity, permission, level);
         }
-        World world = entity.getEntityWorld();
-        return entity.getCommandSource(world instanceof ServerWorld ? (ServerWorld)world : null).hasPermissionLevel(level);
+        Level world = entity.level();
+        return entity.createCommandSourceStackForNameResolution(world instanceof ServerLevel ? (ServerLevel)world : null)
+                .permissions()
+                .hasPermission(
+                        new Permission.HasCommandLevel(PermissionLevel.byId(level))
+                );
     }
 }

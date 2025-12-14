@@ -1,31 +1,31 @@
 package dev.codedsakura.blossom.lib.text;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.stream.Collector;
 
 public class TextSuperJoiner {
-    private final MutableText prepend;
-    private final MutableText append;
-    private final MutableText join;
+    private final MutableComponent prepend;
+    private final MutableComponent append;
+    private final MutableComponent join;
 
-    private MutableText result;
+    private MutableComponent result;
 
-    private TextSuperJoiner(Text prepend, Text append, Text join) {
+    private TextSuperJoiner(Component prepend, Component append, Component join) {
         this.prepend = prepend.copy();
         this.append = append.copy();
         this.join = join.copy();
     }
 
-    private TextSuperJoiner(Text prepend, Text append, Text join, MutableText result) {
+    private TextSuperJoiner(Component prepend, Component append, Component join, MutableComponent result) {
         this.prepend = prepend.copy();
         this.append = append.copy();
         this.join = join.copy();
         this.result = result;
     }
 
-    private void accumulator(Text text) {
+    private void accumulator(Component text) {
         if (result == null) {
             result = prepend.copy()
                     .append(text)
@@ -48,11 +48,11 @@ public class TextSuperJoiner {
         );
     }
 
-    private MutableText finisher() {
+    private MutableComponent finisher() {
         return result;
     }
 
-    public static Collector<Text, ?, MutableText> collector(Text prepend, Text append, Text join) {
+    public static Collector<Component, ?, MutableComponent> collector(Component prepend, Component append, Component join) {
         return Collector.of(
                 () -> new TextSuperJoiner(prepend, append, join),
                 TextSuperJoiner::accumulator,
@@ -61,9 +61,9 @@ public class TextSuperJoiner {
         );
     }
 
-    public static Collector<Text, ?, MutableText> joiner(Text join) {
+    public static Collector<Component, ?, MutableComponent> joiner(Component join) {
         return Collector.of(
-                () -> new TextSuperJoiner(Text.empty(), Text.empty(), join),
+                () -> new TextSuperJoiner(Component.empty(), Component.empty(), join),
                 TextSuperJoiner::accumulator,
                 TextSuperJoiner::combiner,
                 TextSuperJoiner::finisher

@@ -1,9 +1,9 @@
 package dev.codedsakura.blossom.lib.teleport;
 
 import dev.codedsakura.blossom.lib.text.TextUtils;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 public class TitleMessageConfig {
     public boolean enabled = true;
@@ -27,13 +27,13 @@ public class TitleMessageConfig {
                     .withColor(TextUtils.parseColor(color))
                     .withBold(modifiers.indexOf('b') >= 0)
                     .withItalic(modifiers.indexOf('i') >= 0)
-                    .withUnderline(modifiers.indexOf('u') >= 0)
+                    .withUnderlined(modifiers.indexOf('u') >= 0)
                     .withObfuscated(modifiers.indexOf('o') >= 0)
                     .withStrikethrough(modifiers.indexOf('s') >= 0);
         }
 
-        public MutableText getText(String key) {
-            return TextUtils.translation(key).styled(this::getStyle);
+        public MutableComponent getText(String key) {
+            return TextUtils.translation(key).withStyle(this::getStyle);
         }
     }
 
@@ -45,12 +45,12 @@ public class TitleMessageConfig {
             this.counterColor = counterColor;
         }
 
-        public MutableText getText(String key, int counter) {
+        public MutableComponent getText(String key, int counter) {
             return TextUtils.translation(
                     key,
-                    Text.literal(Integer.toString(counter))
-                            .styled(style -> style.withColor(TextUtils.parseColor(counterColor)))
-            ).styled(this::getStyle);
+                    Component.literal(Integer.toString(counter))
+                            .withStyle(style -> style.withColor(TextUtils.parseColor(counterColor)))
+            ).withStyle(this::getStyle);
         }
     }
 

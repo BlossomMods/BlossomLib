@@ -1,26 +1,26 @@
 package dev.codedsakura.blossom.lib.permissions;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
 class PermissionsExecutor {
-    static Predicate<ServerCommandSource> require(@NotNull String permission, boolean defaultValue) {
+    static Predicate<CommandSourceStack> require(@NotNull String permission, boolean defaultValue) {
         return Permissions.require(permission, defaultValue);
     }
 
-    static Predicate<ServerCommandSource> require(@NotNull String permission, int level) {
+    static Predicate<CommandSourceStack> require(@NotNull String permission, int level) {
         return Permissions.require(permission, level);
     }
 
-    static boolean check(@NotNull ServerCommandSource source, @NotNull String permission, boolean fallback) {
+    static boolean check(@NotNull CommandSourceStack source, @NotNull String permission, boolean fallback) {
         return Permissions.check(source, permission, fallback);
     }
 
-    static boolean check(@NotNull ServerCommandSource source, @NotNull String permission, int level) {
+    static boolean check(@NotNull CommandSourceStack source, @NotNull String permission, int level) {
         return Permissions.check(source, permission, level);
     }
 

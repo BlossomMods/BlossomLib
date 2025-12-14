@@ -1,16 +1,16 @@
 package dev.codedsakura.blossom.lib.text;
 
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 
 import static dev.codedsakura.blossom.lib.BlossomGlobals.CONFIG;
 
 public class CommandTextBuilder {
     private String commandDisplay;
     private String commandRun;
-    private Text description = null;
+    private Component description = null;
     private boolean suggest = true;
     private boolean hoverShowDisplay = true;
     private String displayKey = "blossom.text.command.display";
@@ -30,7 +30,7 @@ public class CommandTextBuilder {
         return this;
     }
 
-    public CommandTextBuilder setDescription(Text description) {
+    public CommandTextBuilder setDescription(Component description) {
         this.description = description;
         return this;
     }
@@ -75,9 +75,9 @@ public class CommandTextBuilder {
         return this;
     }
 
-    private Text getDescription() {
-        MutableText command = Text.literal(hoverShowDisplay ? commandDisplay : commandRun)
-                .styled(descriptionStyle -> descriptionStyle.withColor(TextUtils.parseColor(CONFIG.colors.command)));
+    private Component getDescription() {
+        MutableComponent command = Component.literal(hoverShowDisplay ? commandDisplay : commandRun)
+                .withStyle(descriptionStyle -> descriptionStyle.withColor(TextUtils.parseColor(CONFIG.colors.command)));
         if (description == null) {
             return TextUtils.translation(
                     "blossom.text.command.plain",
@@ -88,15 +88,15 @@ public class CommandTextBuilder {
                 "blossom.text.command.description",
                 command,
                 description.copy()
-                        .styled(descriptionStyle -> descriptionStyle.withColor(TextUtils.parseColor(CONFIG.colors.commandDescription)))
+                        .withStyle(descriptionStyle -> descriptionStyle.withColor(TextUtils.parseColor(CONFIG.colors.commandDescription)))
         );
     }
 
-    public Text asColoredText() {
+    public Component asColoredText() {
         return TextUtils.translation(
                 displayKey,
                 commandDisplay
-        ).styled(style -> style
+        ).withStyle(style -> style
                 .withColor(TextUtils.parseColor(CONFIG.colors.command))
                 .withHoverEvent(new HoverEvent.ShowText(
                         this.getDescription()
