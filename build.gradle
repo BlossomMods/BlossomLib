@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -19,13 +19,12 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}+${project.minecraft_version}"
-    modImplementation "me.lucko:fabric-permissions-api:${project.fpa_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}+${project.minecraft_version}"
+    implementation "me.lucko:fabric-permissions-api:${project.fpa_version}"
 
-    modImplementation(include("xyz.nucleoid:server-translations-api:${project.server_translations_version}"))
+    implementation(include("xyz.nucleoid:server-translations-api:${project.server_translations_version}"))
 }
 
 processResources {
@@ -42,7 +41,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
-    it.options.release = 21
+    it.options.release = 25
 }
 
 java {
@@ -89,7 +88,7 @@ publishing {
 modrinth {
     projectId = "${project.mod_slug}"
     versionType = "release"
-    uploadFile = remapJar
+    uploadFile = jar
     changelog = System.getenv("CHANGELOG_PATH") ? rootProject.file(System.getenv("CHANGELOG_PATH")).text : ""
     gameVersions = project.supported_versions.split(";").toList()
     loaders = ["fabric", "quilt"]

@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
@@ -50,6 +51,7 @@ public class TeleportUtils {
             Identifier id = Identifier.parse(IDENTIFIER + "_" + who.getStringUUID());
             commandBossBar = Optional.ofNullable(server.getCustomBossEvents().get(id))
                     .orElseGet(() -> server.getCustomBossEvents().create(
+                            RandomSource.create(),
                             id,
                             TextUtils.translation(
                                     "blossom.countdown.boss_bar.name",
@@ -93,7 +95,7 @@ public class TeleportUtils {
                 }
 
                 if (config.actionBarMessageEnabled) {
-                    who.displayClientMessage(
+                    who.sendSystemMessage(
                             TextUtils.translation("blossom.countdown.action_bar.done"),
                             true
                     );
@@ -153,7 +155,7 @@ public class TeleportUtils {
                     );
                 }
                 if (config.actionBarMessageEnabled) {
-                    who.displayClientMessage(
+                    who.sendSystemMessage(
                             TextUtils.translation("blossom.countdown.action_bar.counting", remaining),
                             true
                     );
@@ -249,14 +251,14 @@ public class TeleportUtils {
     public static boolean teleport(@Nullable TeleportConfig customConfig, double standStillTime, long cooldownTime,
                                    Class<?> cooldownClass, ServerPlayer who, GetDestination getWhere) {
         if (hasCountdowns(who.getUUID())) {
-            who.displayClientMessage(TextUtils.fTranslation("blossom.error.has-countdown", TextUtils.Type.ERROR), false);
+            who.sendSystemMessage(TextUtils.fTranslation("blossom.error.has-countdown", TextUtils.Type.ERROR), false);
             return false;
         }
         HashablePair<UUID, Class<?>> pair = new HashablePair<>(who.getUUID(), cooldownClass);
         if (COOLDOWNS.containsKey(pair)) {
             long timeLeft = COOLDOWNS.get(pair) - new Date().getTime() / 1000;
             if (timeLeft > 0) {
-                who.displayClientMessage(TextUtils.fTranslation("blossom.error.has-cooldown", TextUtils.Type.ERROR, timeLeft), false);
+                who.sendSystemMessage(TextUtils.fTranslation("blossom.error.has-cooldown", TextUtils.Type.ERROR, timeLeft), false);
                 return false;
             }
         }
