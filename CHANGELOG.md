@@ -1,3 +1,7 @@
+# 2.5.20
+
+* Update to support 26.2
+
 # 2.5.19
 
 * Update to support 26.1
