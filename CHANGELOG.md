@@ -1,3 +1,8 @@
+# 2.6.0
+
+* Fix player speed changing on server due to FOV effect cosmetic ([#35](https://github.com/BlossomMods/BlossomLib/issues/35))
+* Fix crash when SysOut is not available for CustomLogger ([#30](https://github.com/BlossomMods/BlossomLib/issues/30))
+
 # 2.5.9
 
 * Update to support 1.21.1
