@@ -118,6 +118,13 @@ public class TeleportUtils {
                 }
             }
 
+            private void resetFov() {
+                if (config.fovEffectBefore.isEnabled() || config.fovEffectAfter.isEnabled()) {
+                    lastFovMultiplier[0] = 1f;
+                    PlayerSetFoV.setPlayerFoV(who, 1);
+                }
+            }
+
             private boolean isStill() {
                 if (counter < 1) {
                     return true;
@@ -130,8 +137,7 @@ public class TeleportUtils {
                     return true;
                 } else {
                     LOGGER.debug("genericCountdown for {} has been reset after {} ticks", player, standTicks - counter);
-                    lastFovMultiplier[0] = 1f;
-                    PlayerSetFoV.setPlayerFoV(who, 1);
+                    resetFov();
                     lastPos[0] = pos;
                     return false;
                 }
@@ -198,7 +204,7 @@ public class TeleportUtils {
                 }
 
                 if (counter != 0) {
-                    PlayerSetFoV.setPlayerFoV(who, 1);
+                    resetFov();
                 }
             }
         });
