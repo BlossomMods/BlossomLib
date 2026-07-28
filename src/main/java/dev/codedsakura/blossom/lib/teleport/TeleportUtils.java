@@ -110,6 +110,13 @@ public class TeleportUtils {
                 }
             }
 
+            private void resetFov() {
+                if (config.fovEffectBefore.isEnabled() || config.fovEffectAfter.isEnabled()) {
+                    lastFovMultiplier[0] = 1f;
+                    PlayerSetFoV.setPlayerFoV(who, 1);
+                }
+            }
+
             private boolean isStill() {
                 if (counter < 1) {
                     return true;
@@ -122,8 +129,7 @@ public class TeleportUtils {
                     return true;
                 } else {
                     LOGGER.debug("genericCountdown for {} has been reset after {} ticks", player, standTicks - counter);
-                    lastFovMultiplier[0] = 1f;
-                    PlayerSetFoV.setPlayerFoV(who, 1);
+                    resetFov();
                     lastPos[0] = pos;
                     return false;
                 }
@@ -190,7 +196,7 @@ public class TeleportUtils {
                 }
 
                 if (counter != 0) {
-                    PlayerSetFoV.setPlayerFoV(who, 1);
+                    resetFov();
                 }
             }
         });
@@ -301,48 +307,35 @@ public class TeleportUtils {
         TeleportDestination get();
     }
 
-    public static class TeleportDestination {
-        final public ServerWorld world;
-        final public double x, y, z;
-        final public float yaw, pitch;
+    public record TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {
+            public TeleportDestination(ServerWorld world, Vec3d pos, float yaw, float pitch) {
+                this(world, pos.x, pos.y, pos.z, yaw, pitch);
+            }
 
-        public TeleportDestination(ServerWorld world, Vec3d pos, float yaw, float pitch) {
-            this(world, pos.x, pos.y, pos.z, yaw, pitch);
-        }
+            public TeleportDestination(ServerWorld world, double x, double y, double z, Vec2f rotation) {
+                this(world, x, y, z, rotation.x, rotation.y);
+            }
 
-        public TeleportDestination(ServerWorld world, double x, double y, double z, Vec2f rotation) {
-            this(world, x, y, z, rotation.x, rotation.y);
-        }
+            public TeleportDestination(ServerWorld world, Vec3d pos, Vec2f rotation) {
+                this(world, pos.x, pos.y, pos.z, rotation.x, rotation.y);
+            }
 
-        public TeleportDestination(ServerWorld world, Vec3d pos, Vec2f rotation) {
-            this(world, pos.x, pos.y, pos.z, rotation.x, rotation.y);
-        }
-
-        public TeleportDestination(PlayerEntity player) {
-            this((ServerWorld) player.getWorld(), player.getPos(), player.getYaw(), player.getPitch());
-        }
-
-        public TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {
-            this.world = world;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.yaw = yaw;
-            this.pitch = pitch;
-        }
+            public TeleportDestination(PlayerEntity player) {
+                this((ServerWorld) player.getWorld(), player.getPos(), player.getYaw(), player.getPitch());
+            }
 
         @Override
-        public String toString() {
-            return "TeleportDestination{" +
-                    "world=" + world +
-                    ", x=" + x +
-                    ", y=" + y +
-                    ", z=" + z +
-                    ", yaw=" + yaw +
-                    ", pitch=" + pitch +
-                    '}';
+            public String toString() {
+                return "TeleportDestination{" +
+                        "world=" + world +
+                        ", x=" + x +
+                        ", y=" + y +
+                        ", z=" + z +
+                        ", yaw=" + yaw +
+                        ", pitch=" + pitch +
+                        '}';
+            }
         }
-    }
 
     public interface LastTeleportAddHook {
         void run(UUID player, TeleportDestination destination, HashMap<UUID, TeleportDestination> lastTeleportMap);
