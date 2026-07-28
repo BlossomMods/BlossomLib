@@ -25,6 +25,13 @@ public class CustomLogger {
         }
 
         Appender sysOut = LoggerContext.getContext(false).getConfiguration().getAppender("SysOut");
+
+        if (sysOut == null) {
+            CONTEXT = LoggerContext.getContext(true);
+            CONTEXT.getLogger("CustomLogger").warn("SysOut was not found, falling back to default logging");
+            return;
+        }
+
         ConfigurationBuilder<BuiltConfiguration> builder = newConfigurationBuilder();
 
         builder.add(
