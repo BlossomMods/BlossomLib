@@ -1,3 +1,7 @@
+# 2.6.1
+
+* Fix crash with TeleportUtils as [reported on Discord](https://discord.com/channels/805088174085767219/842663123549683742/1532765390952861813)
+
 # 2.6.0
 
 * Fix player speed changing on server due to FOV effect cosmetic ([#35](https://github.com/BlossomMods/BlossomLib/issues/35))

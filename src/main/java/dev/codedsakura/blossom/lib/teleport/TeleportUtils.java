@@ -307,35 +307,48 @@ public class TeleportUtils {
         TeleportDestination get();
     }
 
-    public record TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {
-            public TeleportDestination(ServerWorld world, Vec3d pos, float yaw, float pitch) {
-                this(world, pos.x, pos.y, pos.z, yaw, pitch);
-            }
+    public static class TeleportDestination {
+        final public ServerWorld world;
+        final public double x, y, z;
+        final public float yaw, pitch;
 
-            public TeleportDestination(ServerWorld world, double x, double y, double z, Vec2f rotation) {
-                this(world, x, y, z, rotation.x, rotation.y);
-            }
+        public TeleportDestination(ServerWorld world, Vec3d pos, float yaw, float pitch) {
+            this(world, pos.x, pos.y, pos.z, yaw, pitch);
+        }
 
-            public TeleportDestination(ServerWorld world, Vec3d pos, Vec2f rotation) {
-                this(world, pos.x, pos.y, pos.z, rotation.x, rotation.y);
-            }
+        public TeleportDestination(ServerWorld world, double x, double y, double z, Vec2f rotation) {
+            this(world, x, y, z, rotation.x, rotation.y);
+        }
 
-            public TeleportDestination(PlayerEntity player) {
-                this((ServerWorld) player.getWorld(), player.getPos(), player.getYaw(), player.getPitch());
-            }
+        public TeleportDestination(ServerWorld world, Vec3d pos, Vec2f rotation) {
+            this(world, pos.x, pos.y, pos.z, rotation.x, rotation.y);
+        }
+
+        public TeleportDestination(PlayerEntity player) {
+            this((ServerWorld) player.getWorld(), player.getPos(), player.getYaw(), player.getPitch());
+        }
+
+        public TeleportDestination(ServerWorld world, double x, double y, double z, float yaw, float pitch) {
+            this.world = world;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.yaw = yaw;
+            this.pitch = pitch;
+        }
 
         @Override
-            public String toString() {
-                return "TeleportDestination{" +
-                        "world=" + world +
-                        ", x=" + x +
-                        ", y=" + y +
-                        ", z=" + z +
-                        ", yaw=" + yaw +
-                        ", pitch=" + pitch +
-                        '}';
-            }
+        public String toString() {
+            return "TeleportDestination{" +
+                    "world=" + world +
+                    ", x=" + x +
+                    ", y=" + y +
+                    ", z=" + z +
+                    ", yaw=" + yaw +
+                    ", pitch=" + pitch +
+                    '}';
         }
+    }
 
     public interface LastTeleportAddHook {
         void run(UUID player, TeleportDestination destination, HashMap<UUID, TeleportDestination> lastTeleportMap);
