@@ -1,3 +1,7 @@
+# 2.6.1
+
+* Update to support 26.3
+
 # 2.6.0
 
 * Fix player speed changing on server due to FOV effect cosmetic ([#35](https://github.com/BlossomMods/BlossomLib/issues/35))
